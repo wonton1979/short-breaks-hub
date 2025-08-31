@@ -8,21 +8,18 @@ export default function Footer() {
                 backgroundPosition: 'center',
             }}
         >
-            {/* Overlay */}
             <div className="absolute inset-0 bg-black/60"></div>
 
             <div className="relative max-w-screen-xl mx-auto px-4 md:px-6 py-10">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-                    {/* Column 1 */}
                     <div>
-                        <h2 className="text-lg font-semibold text-white mb-4">Travel Explorer</h2>
+                        <h2 className="text-lg font-semibold text-white mb-4">Short Break Hub</h2>
                         <p className="text-sm">
                             Discover the best travel itineraries and tips around the world.
                         </p>
                     </div>
 
-                    {/* Column 2 */}
                     <div>
                         <h3 className="text-md font-semibold text-white mb-4">Quick Links</h3>
                         <ul className="space-y-2">
@@ -33,7 +30,6 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Column 3 */}
                     <div>
                         <h3 className="text-md font-semibold text-white mb-4">Follow Us</h3>
                         <div className="flex space-x-4 text-xl">
@@ -41,7 +37,7 @@ export default function Footer() {
                             <a href="#" className="hover:text-yellow-300">🐦</a>
                             <a href="#" className="hover:text-yellow-300">📷</a>
                         </div>
-                        <p className="text-xs mt-4">© {new Date().getFullYear()} Travel Explorer. All rights reserved.</p>
+                        <p className="text-xs mt-4">© {new Date().getFullYear()} Short Break Hub. All rights reserved.</p>
                     </div>
 
                 </div>

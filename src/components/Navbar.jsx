@@ -24,8 +24,7 @@ export default function Navbar() {
             return;
         }
 
-        // scroll on the current page
-        // if we are not on "/", go home first, then scroll after a tick
+
         const doScroll = () => {
             const el = document.getElementById(item.id);
             if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });

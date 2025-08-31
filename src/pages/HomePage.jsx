@@ -30,7 +30,7 @@ function HomePage() {
 
                     <div className="relative z-10 flex flex-col items-center justify-center text-white text-center px-4 h-screen">
                         <h1 className="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">
-                            Travel Explorer
+                            Short Break Hub
                         </h1>
                         <h4 className="text-3xl mt-16 sm:text-4xl font-extrabold text-yellow-300 drop-shadow-lg text-center">
                             Explore&nbsp;

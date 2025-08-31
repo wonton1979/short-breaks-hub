@@ -1,15 +1,12 @@
-// src/components/CountryCard.jsx
 import React from 'react';
-
-// src/components/CountryCard.jsx
 import { Link } from "react-router-dom";
 
 function toSlug(title) {
     return title
         .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, "") // remove non-alphanumerics
+        .replace(/[^a-z0-9\s-]/g, "")
         .trim()
-        .replace(/\s+/g, "-");        // spaces -> hyphens
+        .replace(/\s+/g, "-");
 }
 
 export default function CountryCard({ name, image, itineraries }) {

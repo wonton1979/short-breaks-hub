@@ -1,4 +1,4 @@
-export default function StayOptions({ city, options = [] }) {
+export default function StayOptions({ city, options = [],checkIn, checkOut,nights }) {
     if (!options.length) {
         return (
             <div className="bg-white rounded-xl shadow p-5">

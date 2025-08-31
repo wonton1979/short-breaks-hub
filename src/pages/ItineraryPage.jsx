@@ -14,13 +14,12 @@ export default function ItineraryPage() {
     const data = itineraries.find((i) => i.slug === slug)
         || itineraries.find((i) => i.title && slugify(i.title) === slug);
 
-    // avoid timezone off-by-one in <input type="date">
     function toLocalISO(d) {
         const t = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
         return t.toISOString().slice(0, 10);
     }
 
-// defaults: check-in = 14 days from today, 3 nights
+
     const today = new Date();
     const defaultIn = new Date(today);
     defaultIn.setDate(today.getDate() + 14);
@@ -73,9 +72,7 @@ export default function ItineraryPage() {
                 </div>
             </section>
 
-            {/* Content */}
             <section className="max-w-screen-xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-3 gap-8">
-                {/* Main column */}
                 <article className="md:col-span-2">
                     {/* Highlights */}
                     <h2 className="text-xl font-bold mb-3">Trip Highlights</h2>
@@ -94,7 +91,7 @@ export default function ItineraryPage() {
                     <ItineraryDayAccordion schedule={data.schedule} />
                 </article>
 
-                {/* Sidebar */}
+
                 <aside>
                     <div className="bg-white rounded-xl shadow p-5 sticky top-20">
                         <h3 className="text-lg font-bold mb-3">Choose your dates</h3>
@@ -129,7 +126,12 @@ export default function ItineraryPage() {
                         <hr className="my-4" />
                     </div>
                     <div className="mt-4">
-                        <StayOptions city={city || data.country} options={stayOptions} />
+                        <StayOptions city={city || data.country}
+                                     options={stayOptions}
+                                     checkIn={checkIn}
+                                     checkOut={checkOut}
+                                     nights={nights}
+                        />
                     </div>
                 </aside>
 
@@ -138,7 +140,7 @@ export default function ItineraryPage() {
     );
 }
 
-// Fallback slugify if user navigates via title-based URL
+
 function slugify(title) {
     return title
         .toLowerCase()
