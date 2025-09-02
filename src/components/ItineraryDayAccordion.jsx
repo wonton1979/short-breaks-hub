@@ -1,5 +1,10 @@
-// src/components/ItineraryDayAccordion.jsx
+import { useState } from "react";
+import DayDetailModal from "./DayDetailModal";
+
+
 export default function ItineraryDayAccordion({ schedule = [] }) {
+    const [selectedDay, setSelectedDay] = useState(null);
+
     if (!schedule.length) {
         return (
             <div className="rounded-lg border bg-white p-4 text-gray-600">
@@ -24,10 +29,18 @@ export default function ItineraryDayAccordion({ schedule = [] }) {
                         <span className="ml-4 text-gray-400 hidden group-open:inline">−</span>
                     </summary>
                     <div className="px-4 pb-4 text-gray-700 leading-relaxed">
-                        {item.description}
+                        {item.summary}
+                        <br/>
+                        <button
+                            onClick={() => setSelectedDay(item)}
+                            className="mt-2 text-sm text-blue-600 hover:underline"
+                        >
+                            View details →
+                        </button>
                     </div>
                 </details>
             ))}
+            <DayDetailModal day={selectedDay} onClose={() => setSelectedDay(null)} />
         </div>
     );
 }

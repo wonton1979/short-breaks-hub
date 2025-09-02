@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { itineraries } from "../data/itineraries";
 import ItineraryDayAccordion from "../components/ItineraryDayAccordion";
-import { useState, useMemo } from "react";
+import {useState, useMemo, useEffect} from "react";
 import StayOptions from "../components/StayOptions";
 import { staysByCity } from "../data/stays";
 
@@ -36,6 +36,28 @@ export default function ItineraryPage() {
         const diff = (b - a) / 86400000;
         return diff > 0 ? Math.round(diff) : 0;
     }, [checkIn, checkOut]);
+
+    useEffect(() => {
+        if (!data) return;
+
+
+        document.title = `${data.title} • Short Breaks Hub`;
+
+        const descr =
+            document.querySelector('meta[name="description"]') ||
+            (() => {
+                const m = document.createElement("meta");
+                m.setAttribute("name", "description");
+                document.head.appendChild(m);
+                return m;
+            })();
+
+        descr.setAttribute(
+            "content",
+            data.summary ||
+            `${data.country} • ${data.days} days from $${data.priceFrom}`
+        );
+    }, [data]);
 
 
     if (!data) {

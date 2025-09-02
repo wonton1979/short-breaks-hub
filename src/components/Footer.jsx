@@ -26,7 +26,7 @@ export default function Footer() {
                             <li><a href="/" className="hover:text-yellow-300">Home</a></li>
                             <li><a href="/southeast-asia" className="hover:text-yellow-300">Southeast Asia</a></li>
                             <li><a href="#" className="hover:text-yellow-300">Europe</a></li>
-                            <li><a href="#" className="hover:text-yellow-300">Contact</a></li>
+                            <li><a href="/contact" className="hover:text-yellow-300">Contact</a></li>
                         </ul>
                     </div>
 

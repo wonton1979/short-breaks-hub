@@ -1,4 +1,23 @@
 export default function StayOptions({ city, options = [],checkIn, checkOut,nights }) {
+
+    function buildQuery() {
+        const qs = new URLSearchParams();
+        if (checkIn)  qs.set("checkin",  checkIn);
+        if (checkOut) qs.set("checkout", checkOut);
+        qs.set("adults", "2");
+        return qs.toString();
+    }
+
+    function getAffiliateUrl(option, qs) {
+        if (!option.link || option.link === "#") {
+            return "#";
+        }
+        let separator = option.link.includes("?") ? "&" : "?";
+        return option.link + separator + qs;
+    }
+
+
+
     if (!options.length) {
         return (
             <div className="bg-white rounded-xl shadow p-5">

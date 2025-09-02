@@ -7,7 +7,7 @@ const links = [
     { id: 'home', label: 'Home', type: 'scroll' },
     { id: 'explore', label: 'Explore', type: 'scroll' },
     { id: '/southeast-asia', label: 'Southeast Asia', type: 'route' }, // route
-    { id: 'contact', label: 'Contact', type: 'scroll' },
+    { id: '/contact', label: 'Contact', type: 'route' },
 ];
 
 export default function Navbar() {
@@ -19,7 +19,6 @@ export default function Navbar() {
         setOpen(false);
 
         if (item.type === 'route') {
-            // navigate to a different page
             navigate(item.id);
             return;
         }

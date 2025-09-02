@@ -6,6 +6,9 @@ import RegionCard from "../components/RegionCard.jsx";
 import southeastImg from "../assets/southeast.jpg";
 import eastAsiaImg from "../assets/eastasia.jpg";
 import europeImg from "../assets/europe.jpg";
+import americasImg from "../assets/americas.jpg";
+import anzImg from "../assets/anz.jpg";
+import northAfricaImg from "../assets/northAfrica.jpg"
 import {useNavigate} from "react-router-dom";
 
 
@@ -16,6 +19,45 @@ function HomePage() {
     };
 
     const navigate = useNavigate();
+
+    const regions = [
+        {
+            title: "Southeast Asia",
+            description: "Tropical beaches, vibrant cities, and legendary street food.",
+            image: southeastImg,
+            onClick: "/southeast-asia",
+        },
+        {
+            title: "East Asia",
+            description: "Ancient temples, neon skylines, and rich traditions.",
+            image: eastAsiaImg,
+            onClick: "/east-asia",
+        },
+        {
+            title: "Europe",
+            description: "Iconic landmarks, café culture, and timeless elegance.",
+            image: europeImg,
+            onClick: "/europe",
+        },
+        {
+            title: "Americas",
+            description: "From NYC weekends to Andean escapes—urban buzz & wild nature.",
+            image: americasImg,
+            onClick: "/americas",
+        },
+        {
+            title: "Australia & New Zealand",
+            description: "Coastal road trips, wine regions, and epic alpine scenery.",
+            image: anzImg,
+            onClick: "/anz",
+        },
+        {
+            title: "North Africa",
+            description: "Souks, desert dunes, and Mediterranean old towns.",
+            image: northAfricaImg,
+            onClick: "/north-africa",
+        },
+    ];
 
     return (
         <>
@@ -46,7 +88,7 @@ function HomePage() {
                                 />
                           </span>
                         </h4>
-                        <button className="mt-28 cursor-pointer bg-yellow-400 hover:bg-yellow-100 text-gray-900 shadow-lg px-6 py-3 rounded-full transition-all duration-300">
+                        <button onClick={scrollToExplore} className="mt-28 cursor-pointer bg-yellow-400 hover:bg-yellow-100 text-gray-900 shadow-lg px-6 py-3 rounded-full transition-all duration-300">
                             Explore Now
                         </button>
                         {/* Desktop vertical ribbon */}
@@ -78,25 +120,14 @@ function HomePage() {
                 <div ref={exploreRef} className="py-16 px-6 bg-white">
                     <h2 className="text-3xl font-bold text-center mb-10">Explore by Region</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                        {/* Southeast Asia */}
-                        <RegionCard
-                            image={southeastImg}
-                            title="Southeast Asia"
-                            description="Tropical beaches, vibrant cultures, and delicious street food."
-                            onClick={() => navigate("/southeast-asia")}
-                        />
-                        <RegionCard
-                            image={eastAsiaImg}
-                            title="East Asia"
-                            description="Ancient temples, futuristic cities, and rich traditions."
-                            onClick={() => console.log('Go to East Asia')}
-                        />
-                        <RegionCard
-                            image={europeImg}
-                            title="Europe"
-                            description="Charming towns, iconic landmarks, and timeless elegance."
-                            onClick={() => console.log('Go to Europe')}
-                        />
+                        { regions.map((item, index) => (
+                            <RegionCard
+                                image={item.image}
+                                title={item.title}
+                                description={item.description}
+                                onClick={() => navigate(item.onClick)}
+                            />
+                        ))}
                     </div>
                 </div>
             </section>
