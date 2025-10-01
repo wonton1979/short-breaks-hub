@@ -1,22 +1,63 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { itineraries } from "../data/itineraries";
+import { useParams,useNavigate } from "react-router-dom";
 import ItineraryDayAccordion from "../components/ItineraryDayAccordion";
-import {useState, useMemo, useEffect} from "react";
+import React, {useState, useMemo, useEffect} from "react";
 import StayOptions from "../components/StayOptions";
 import { staysByCity } from "../data/stays";
+import {getItineraryBySlug,getFavoritesCount,getFavoritesMe,postFavorite,deleteFavorite} from "../api.js";
+import {Helmet} from "react-helmet-async";
+import Lottie from "lottie-react";
+import LoadingAnimation from "../assets/Loading-Animation.json";
+import {showToast} from "../utils/toast.js";
 
 
 export default function ItineraryPage() {
     const { slug } = useParams();
     const navigate = useNavigate();
+    const [data,setData] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [likes, setLikes] = React.useState({
+        liked: false,
+        count: 0,
+        saving: false,
+    });
 
-
-    const data = itineraries.find((i) => i.slug === slug)
-        || itineraries.find((i) => i.title && slugify(i.title) === slug);
 
     function toLocalISO(d) {
         const t = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
         return t.toISOString().slice(0, 10);
+    }
+
+    function toggleLike() {
+        if (likes.saving) return;
+
+        setLikes(s => ({ ...s, saving: true }));
+
+        const prev = likes;
+        const optimistic = prev.liked
+            ? { liked: false, count: Math.max(0, prev.count - 1) }
+            : { liked: true,  count: prev.count + 1 };
+
+        setLikes(s => ({ ...s, ...optimistic }));
+
+        const req = optimistic.liked
+            ? postFavorite(data.id)
+            : deleteFavorite(data.id);
+
+        req.then(() => {
+            setLikes(s => ({ ...s, saving: false }));
+        })
+            .catch(err => {
+
+                setLikes({ ...prev, saving: false });
+                if (err?.response?.status === 401) {
+                    showToast("Please log in to like itineraries", { variant: "error" });
+
+                } else {
+                    showToast("Failed to update like", { variant: "error" });
+                }
+            });
+
+
     }
 
 
@@ -38,26 +79,53 @@ export default function ItineraryPage() {
     }, [checkIn, checkOut]);
 
     useEffect(() => {
-        if (!data) return;
+        getItineraryBySlug(slug).then(
+            (data) => {
+                document.title = `${data.slug} • Short Breaks Hub`;
+                const descr =
+                    document.querySelector('meta[name="description"]') ||
+                    (() => {
+                        const m = document.createElement("meta");
+                        m.setAttribute("name", "description");
+                        document.head.appendChild(m);
+                        return m;
+                    })();
 
-
-        document.title = `${data.title} • Short Breaks Hub`;
-
-        const descr =
-            document.querySelector('meta[name="description"]') ||
-            (() => {
-                const m = document.createElement("meta");
-                m.setAttribute("name", "description");
-                document.head.appendChild(m);
-                return m;
-            })();
-
-        descr.setAttribute(
-            "content",
-            data.summary ||
-            `${data.country} • ${data.days} days from $${data.priceFrom}`
+                descr.setAttribute(
+                    "content",
+                    data.summary ||
+                    `${data.country} • ${data.days} days from $${data.priceFrom}`
+                );
+                setData(data);
+                setLoading(false);
+            }
         );
-    }, [data]);
+    }, [slug]);
+
+    React.useEffect(() => {
+        if (!data?.id) return
+
+        getFavoritesMe(data.id).then(
+            ({liked}) => {
+                setLikes(s => ({ ...s, liked: !!liked }))
+            }
+        ).catch(err => console.log(err));
+
+        getFavoritesCount(data.id).then(({count}) => {
+            setLikes(s => ({ ...s, count: count || 0 }))
+        }).catch(err => console.log(err));
+    }, [data?.id]);
+
+
+    if (loading) {
+        return (
+            <div className="fixed inset-0 z-50 bg-white">
+                <div className="w-[1000px] h-[1000px] mt-[250px] ml-[20px] xl:ml-[650px] md:ml-[250px] lg:ml-[400px]">
+                    <Lottie animationData={LoadingAnimation} loop={true} />
+                </div>
+            </div>
+        )
+    }
 
 
     if (!data) {
@@ -71,102 +139,126 @@ export default function ItineraryPage() {
         );
     }
 
-    const city = data.city || (data.country === "Thailand" ? "Bangkok" : undefined);
+    const city = data.city;
     const stayOptions = city ? (staysByCity[city] || []) : [];
 
     return (
-        <main className="min-h-screen bg-gray-50">
-            {/* Hero */}
-            <section
-                className="relative h-[42vh] md:h-[55vh] bg-center bg-cover"
-                style={{ backgroundImage: `url(${data.hero})` }}
-            >
-                <div className="absolute inset-0 bg-black/40" />
-                <div className="relative z-10 h-full flex items-end">
-                    <div className="max-w-screen-xl mx-auto px-4 md:px-6 pb-8">
-                        <h1 className="text-white text-3xl md:text-5xl font-extrabold drop-shadow">
-                            {data.title}
-                        </h1>
-                        <p className="text-white/90 mt-2">
-                            {data.country} · {data.days} Days · From ${data.priceFrom}
-                        </p>
+        <>
+            <Helmet>
+                <title>{data ? `${data.title} | ${data.country} | Short Breaks Hub` : 'Itinerary | Short Breaks Hub'}</title>
+                <meta
+                    name="description"
+                    content={data?.summary || `Explore a curated short-break itinerary with highlights, day plan, and pricing.`}
+                />
+                <meta property="og:title" content={data ? data.title : 'Itinerary'} />
+                <meta property="og:description" content={data?.summary || 'Curated short-break itinerary.'} />
+                {data?.hero && <meta property="og:image" content={data.hero} />}
+            </Helmet>
+
+            <main className="min-h-screen bg-gray-50">
+                {/* Hero */}
+                <section
+                    className="relative h-[42vh] md:h-[55vh] bg-center bg-cover"
+                    style={{ backgroundImage: `url(${data.hero})` }}
+                >
+                    <div className="absolute inset-0 bg-black/40" />
+                    <div className="relative z-10 h-full flex items-center">
+                        <div className="max-w-screen-xl mx-auto px-4 md:px-6 pb-8 mt-[12vh]">
+                            <h1 className="text-white text-3xl md:text-5xl font-extrabold drop-shadow">
+                                {data.title}
+                            </h1>
+                            <p className="text-white/90 mt-8">
+                                {data.country} · {data.days} Days · From ${data.priceFrom}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <section className="max-w-screen-xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-3 gap-8">
-                <article className="md:col-span-2">
-                    {/* Highlights */}
-                    <h2 className="text-xl font-bold mb-3">Trip Highlights</h2>
-                    <ul className="list-disc pl-6 text-gray-700 space-y-1">
-                        {data.highlights?.map((h) => <li key={h}>{h}</li>)}
-                    </ul>
+                <section className="max-w-screen-xl mx-auto px-4 md:px-6 py-10 grid md:grid-cols-3 gap-8">
+                    <article className="md:col-span-2">
+                        {/* Highlights */}
 
-                    {/* Overview */}
-                    <h2 className="text-xl font-bold mt-8 mb-3">Overview</h2>
-                    <p className="text-gray-700 leading-relaxed">
-                        {data.summary}
-                    </p>
+                        <div className="mt-2 flex items-center gap-3">
+                            <h2 className="text-xl font-bold mb-3">Trip Highlights</h2>
+                            <button
+                                type="button"
+                                onClick={toggleLike}
+                                disabled={likes.saving}
+                                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 mb-3 text-sm transition
+                                          ${likes.liked ? "border-rose-300 text-rose-600" : "border-slate-300 text-slate-600"}
+                                          ${likes.saving ? "opacity-60 cursor-not-allowed" : "hover:bg-slate-50 cursor-pointer"}`}
+                                aria-pressed={likes.liked}
+                                aria-label={likes.liked ? "Unlike this itinerary" : "Like this itinerary"}
+                                title={likes.liked ? "Unlike" : "Like"}
+                            >
+                                <span aria-hidden="true">{likes.liked ? "♥" : "♡"}</span>
+                                <span>{likes.count}</span>
+                            </button>
 
-                    {/* Day-by-Day */}
-                    <h3 className="text-lg font-semibold mt-8 mb-3">Day by Day</h3>
-                    <ItineraryDayAccordion schedule={data.schedule} />
-                </article>
-
-
-                <aside>
-                    <div className="bg-white rounded-xl shadow p-5 sticky top-20">
-                        <h3 className="text-lg font-bold mb-3">Choose your dates</h3>
-
-                        <div className="grid grid-cols-2 gap-3">
-                            <label className="text-sm text-gray-600">
-                                Check‑in
-                                <input
-                                    type="date"
-                                    value={checkIn}
-                                    onChange={(e) => setCheckIn(e.target.value)}
-                                    className="mt-1 w-full border rounded px-2 py-1"
-                                />
-                            </label>
-
-                            <label className="text-sm text-gray-600">
-                                Check‑out
-                                <input
-                                    type="date"
-                                    value={checkOut}
-                                    min={checkIn}                  // can't pick before check‑in
-                                    onChange={(e) => setCheckOut(e.target.value)}
-                                    className="mt-1 w-full border rounded px-2 py-1"
-                                />
-                            </label>
+                            <span className="text-xs text-slate-500 mb-3">People who liked this</span>
                         </div>
 
-                        <p className="text-xs text-gray-500 mt-2">
-                            {nights > 0 ? `${nights} night${nights > 1 ? "s" : ""}` : "Select valid dates"}
+                        <ul className="list-disc pl-6 text-gray-700 space-y-1">
+                            {data.highlights?.map((h) => <li key={h}>{h}</li>)}
+                        </ul>
+
+                        {/* Overview */}
+                        <h2 className="text-xl font-bold mt-8 mb-3">Overview</h2>
+                        <p className="text-gray-700 leading-relaxed">
+                            {data.summary}
                         </p>
 
-                        <hr className="my-4" />
-                    </div>
-                    <div className="mt-4">
-                        <StayOptions city={city || data.country}
-                                     options={stayOptions}
-                                     checkIn={checkIn}
-                                     checkOut={checkOut}
-                                     nights={nights}
-                        />
-                    </div>
-                </aside>
+                        {/* Day-by-Day */}
+                        <h3 className="text-lg font-semibold mt-8 mb-3">Day by Day</h3>
+                        <ItineraryDayAccordion schedule={data.schedule} />
+                    </article>
 
-            </section>
-        </main>
+
+                    <aside>
+                        <div className="bg-white rounded-xl shadow p-5 sticky top-20">
+                            <h3 className="text-lg font-bold mb-3">Choose your dates</h3>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <label className="text-sm text-gray-600">
+                                    Check‑in
+                                    <input
+                                        type="date"
+                                        value={checkIn}
+                                        onChange={(e) => setCheckIn(e.target.value)}
+                                        className="mt-1 w-full border rounded px-2 py-1"
+                                    />
+                                </label>
+
+                                <label className="text-sm text-gray-600">
+                                    Check‑out
+                                    <input
+                                        type="date"
+                                        value={checkOut}
+                                        min={checkIn}                  // can't pick before check‑in
+                                        onChange={(e) => setCheckOut(e.target.value)}
+                                        className="mt-1 w-full border rounded px-2 py-1"
+                                    />
+                                </label>
+                            </div>
+
+                            <p className="text-xs text-gray-500 mt-2">
+                                {nights > 0 ? `${nights} night${nights > 1 ? "s" : ""}` : "Select valid dates"}
+                            </p>
+
+                            <hr className="my-4" />
+                        </div>
+                        <div className="mt-4">
+                            <StayOptions city={city || data.country}
+                                         options={stayOptions}
+                                         checkIn={checkIn}
+                                         checkOut={checkOut}
+                                         nights={nights}
+                            />
+                        </div>
+                    </aside>
+
+                </section>
+            </main>
+        </>
     );
-}
-
-
-function slugify(title) {
-    return title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-");
 }

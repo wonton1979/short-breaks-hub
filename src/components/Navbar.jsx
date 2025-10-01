@@ -1,19 +1,29 @@
-// src/components/Navbar.jsx
-import React, { useState } from 'react';
+import React, {useMemo, useState} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Logo from "../assets/logo-icon.png"
-
-const links = [
-    { id: 'home', label: 'Home', type: 'scroll' },
-    { id: 'explore', label: 'Explore', type: 'scroll' },
-    { id: '/southeast-asia', label: 'Southeast Asia', type: 'route' }, // route
-    { id: '/contact', label: 'Contact', type: 'route' },
-];
+import { toast } from 'react-toastify';
+import {Auth} from "../auth.js";
+import {FaUserCircle} from "react-icons/fa";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+
+    const links = useMemo(() => {
+        const base = [
+            { id: 'home',    label: 'Home',    type: 'scroll' },
+            { id: 'explore', label: 'Explore', type: 'scroll' },
+            { id: '/contact', label: 'Contact', type: 'route' },
+        ];
+        if (Auth.isLoggedIn()) {
+            base.splice(2, 0, { id: 'logout', label: 'Logout', type: 'logout' });
+        } else {
+            base.splice(2, 0, { id: '/login', label: 'Login', type: 'route' });
+        }
+        return base;
+    }, [location.key]);
+
 
     const go = (item) => {
         setOpen(false);
@@ -22,7 +32,6 @@ export default function Navbar() {
             navigate(item.id);
             return;
         }
-
 
         const doScroll = () => {
             const el = document.getElementById(item.id);
@@ -35,6 +44,13 @@ export default function Navbar() {
         } else {
             doScroll();
         }
+
+        if (item.type === 'logout') {
+            Auth.clear();
+            navigate('/');
+            toast.success(`You have logged out successfully.`);
+        }
+
     };
 
     return (
@@ -46,13 +62,7 @@ export default function Navbar() {
                         alt="Travel Explorer Logo"
                         className="hidden sm:block h-28 w-auto"
                     />
-                    <img
-                        src={Logo}
-                        alt="Travel Explorer"
-                        className="block sm:hidden h-28 w-auto"
-                    />
                 </a>
-
                 <ul className="hidden md:flex gap-6">
                     {links.map((l) => (
                         <li key={l.label}>
@@ -64,6 +74,14 @@ export default function Navbar() {
                             </button>
                         </li>
                     ))}
+                    {Auth.isLoggedIn() && (
+                        <button
+                            onClick={() => navigate("/profile")}
+                            className="flex items-center text-gray-700 hover:text-gray-900 mx-10 cursor-pointer"
+                        >
+                            <FaUserCircle size={28} />
+                        </button>
+                    )}
                 </ul>
 
                 <button className="md:hidden border rounded px-2 py-1 cursor-pointer" onClick={() => setOpen(v => !v)}>

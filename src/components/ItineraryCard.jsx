@@ -1,0 +1,53 @@
+import {Link} from "react-router-dom";
+import {getFavoritesCount} from "../api.js";
+import React,{useEffect} from "react";
+
+export default function ItineraryCard({it,showLikes=false}) {
+    const [favoritesCount, setFavoritesCount] = React.useState(0);
+    useEffect(() => {
+        if(it){
+            getFavoritesCount(it.id).then(data => {
+                setFavoritesCount(data.count);
+            })
+        }
+
+    },[])
+    return (
+        <>
+            <li key={it.id} className="bg-white rounded-xl shadow hover:shadow-md transition">
+                <Link to={`/itinerary/${it.slug}`} className="block">
+                    <img
+                        src={it.hero}
+                        alt={it.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-44 w-full object-cover rounded-t-xl"
+                    />
+                    <div className="p-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{it.title}</h3>
+                            {showLikes && (
+                                <div className="text-sm text-red-500 flex items-center">
+                                    ❤️ {favoritesCount ?? 0}
+                                </div>
+                            )}
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                            {unslug(it.country)} • {it.days} days • From ${it.priceFrom}
+                        </p>
+                        {it.summary && (
+                            <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                                {it.summary}
+                            </p>
+                        )}
+
+                    </div>
+                </Link>
+            </li>
+        </>
+    )
+}
+
+function unslug(s) {
+    return s.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+}

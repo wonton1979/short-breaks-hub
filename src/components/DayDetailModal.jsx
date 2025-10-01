@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 export default function DayDetailModal({ day, onClose }) {
 
     if (!day) return null;

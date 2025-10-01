@@ -1,4 +1,4 @@
-import React, {useRef} from "react";
+import React, {useRef, useState} from "react";
 import heroBg from "../assets/hero-bg.jpg";
 import {Typewriter} from "react-simple-typewriter";
 import {FaChevronDown} from "react-icons/fa";
@@ -10,9 +10,11 @@ import americasImg from "../assets/americas.jpg";
 import anzImg from "../assets/anz.jpg";
 import northAfricaImg from "../assets/northAfrica.jpg"
 import {useNavigate} from "react-router-dom";
+import ItinerarySearchBar from "../components/ItinerarySearchBar.jsx";
 
 
 function HomePage() {
+    const [loading, setLoading] = useState(true);
     const exploreRef = useRef(null);
     const scrollToExplore = () => {
         exploreRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -25,43 +27,46 @@ function HomePage() {
             title: "Southeast Asia",
             description: "Tropical beaches, vibrant cities, and legendary street food.",
             image: southeastImg,
-            onClick: "/southeast-asia",
+            onClick: "southeast-asia",
         },
         {
             title: "East Asia",
             description: "Ancient temples, neon skylines, and rich traditions.",
             image: eastAsiaImg,
-            onClick: "/east-asia",
+            onClick: "east-asia",
         },
         {
             title: "Europe",
             description: "Iconic landmarks, café culture, and timeless elegance.",
             image: europeImg,
-            onClick: "/europe",
+            onClick: "europe",
         },
         {
             title: "Americas",
             description: "From NYC weekends to Andean escapes—urban buzz & wild nature.",
             image: americasImg,
-            onClick: "/americas",
+            onClick: "americas",
         },
         {
             title: "Australia & New Zealand",
             description: "Coastal road trips, wine regions, and epic alpine scenery.",
             image: anzImg,
-            onClick: "/anz",
+            onClick: "anz",
         },
         {
             title: "North Africa",
             description: "Souks, desert dunes, and Mediterranean old towns.",
             image: northAfricaImg,
-            onClick: "/north-africa",
+            onClick: "north-africa",
         },
     ];
+
+
 
     return (
         <>
             <section id="home" className="scroll-mt-20">
+
                 <div
                     className="relative min-h-[65vh] bg-cover bg-center"
                     style={{ backgroundImage: `url('${heroBg}')` }}
@@ -88,9 +93,9 @@ function HomePage() {
                                 />
                           </span>
                         </h4>
-                        <button onClick={scrollToExplore} className="mt-28 cursor-pointer bg-yellow-400 hover:bg-yellow-100 text-gray-900 shadow-lg px-6 py-3 rounded-full transition-all duration-300">
-                            Explore Now
-                        </button>
+                        <section className="mx-auto max-w-5xl px-4 mt-28">
+                            <ItinerarySearchBar region={regions} />
+                        </section>
                         {/* Desktop vertical ribbon */}
                         <div className="hidden lg:flex absolute right-3 lg:right-6 top-10 bottom-10 items-center">
                           <span
@@ -122,6 +127,7 @@ function HomePage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                         { regions.map((item, index) => (
                             <RegionCard
+                                key={index}
                                 image={item.image}
                                 title={item.title}
                                 description={item.description}
