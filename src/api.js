@@ -29,6 +29,9 @@ export const getFavoritesMe = (itineraryId) =>
 export const getMeFavorites = () =>
     api.get(`/itineraries/me/favorites`).then((res) => res.data);
 
+export const getAllItinerariesByCustomSearch = (customSearch) =>
+    api.get(`/itineraries/search?${customSearch}`).then((res) => res.data);
+
 export const postUserRegister = (email, password, displayName) =>
     api.post("/auth/register", { email:email, password:password, displayName:displayName })
         .then((res) => {

@@ -67,10 +67,6 @@ export default function ContactPage() {
                         </button>
                         {status && <span className="text-sm text-gray-600">{status}</span>}
                     </div>
-
-                    <p className="text-xs text-gray-400 pt-2">
-                        No backend yet — we open your email client with your message prefilled.
-                    </p>
                 </form>
             </section>
         </main>

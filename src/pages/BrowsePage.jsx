@@ -1,19 +1,53 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { getItinerariesByCountry } from "../api";
+import {useParams,useLocation} from "react-router-dom";
+import { getItinerariesByCountry,getAllItinerariesByCustomSearch } from "../api";
 import {Helmet} from "react-helmet-async";
 import Lottie from "lottie-react";
 import LoadingAnimation from "../assets/Loading-Animation.json";
 import ItineraryCard from "../components/ItineraryCard.jsx";
 import {formatSlug} from "../utils/formatSlug.js"
 
+function useQuery() {
+    const { search } = useLocation();
+    return new URLSearchParams(search);
+}
+
 export default function BrowsePage() {
     const {country} = useParams();
-
-
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState("");
+    const qs = useQuery();
+    const initialQ = qs.get("q") || "";
+    const [sort, setSort] = useState("days,asc");
+    const [daysMin, setDaysMin] = useState(1);
+    const [daysMax, setDaysMax] = useState(6);
+    const [q, setQ] = React.useState(initialQ);
+
+    function applyFilters(page = 0) {
+        const params = new URLSearchParams();
+        if (q?.trim()) params.set("q", q.trim());
+        if (daysMin != null) params.set("daysMin", String(daysMin));
+        if (daysMax != null) params.set("daysMax", String(daysMax));
+        params.set("page", String(page));
+        params.set("size", "12");
+        params.set("country", country);
+        if (sort) params.set("sort", sort);
+        console.log(params)
+        getAllItinerariesByCustomSearch(params.toString()).then((res) => setItems(res.content))
+            .catch((err) => console.log(err));
+    }
+
+    function clearFilters() {
+        setQ("");
+        setDaysMin(null);
+        setDaysMax(null);
+    }
+
+    function onSubmit(e){
+        e.preventDefault();
+        applyFilters();
+    }
 
 
     useEffect(() => {
@@ -56,9 +90,72 @@ export default function BrowsePage() {
                 <section className="max-w-screen-xl mx-auto px-4 py-8">
                     <header className="mb-6">
                         <h1 className="text-2xl font-bold">
-                            Browse {country ? `— ${formatSlug(country)}` : ""}
+                            Short Breaks In {country ? `— ${formatSlug(country)}` : ""}
                         </h1>
                     </header>
+
+                    <section className="mb-4 rounded-lg border bg-white p-4">
+                        <form className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end" onSubmit={onSubmit}>
+                            {/* q */}
+                            <label className="md:col-span-4 block">
+                                <span className="block text-sm text-slate-600 mb-1">Keyword</span>
+                                <input
+                                    type="search"
+                                    className="w-full h-10 rounded border px-3"
+                                    placeholder="Bangkok, beach, street food…"
+                                    value={q}
+                                    onChange={e => setQ(e.target.value)}
+                                />
+                            </label>
+
+                            {/* Min days */}
+                            <label className="md:col-span-2 block">
+                                <span className="block text-sm text-slate-600 mb-1">Min days</span>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        className="w-full h-10 rounded border pr-12 px-3"
+                                        value={daysMin ?? ""}
+                                        onChange={e => setDaysMin(e.target.value ? +e.target.value : null)}
+                                    />
+                                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm whitespace-nowrap">days</span>
+                                </div>
+                            </label>
+
+                            {/* Max days */}
+                            <label className="md:col-span-2 block">
+                                <span className="block text-sm text-slate-600 mb-1">Max days</span>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        className="w-full h-10 rounded border pr-12 px-3"
+                                        value={daysMax ?? ""}
+                                        onChange={e => setDaysMax(e.target.value ? +e.target.value : null)}
+                                    />
+                                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm whitespace-nowrap">days</span>
+                                </div>
+                            </label>
+
+                            <button
+                                type="button"
+                                onClick={clearFilters}
+                                className="h-10 px-4 rounded border text-slate-700 hover:bg-slate-50 md:col-span-2 cursor-pointer"
+                            >
+                                Clear
+                            </button>
+                            <button
+                                type="submit"
+                                className="h-10 px-4 rounded bg-amber-500 text-white hover:bg-amber-600 md:col-span-2 cursor-pointer"
+                            >
+                                Apply
+                            </button>
+                        </form>
+
+                    </section>
+
+
 
                     {err && <p className="text-red-600">{err}</p>}
 
