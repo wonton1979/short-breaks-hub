@@ -10,6 +10,7 @@ import BrowsePage from "./pages/BrowsePage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import ProfilePage from "./pages/ProfilePage";
+import CreateItineraryPage from "./pages/CreateItineraryPage.jsx";
 
 
 import { ToastContainer } from 'react-toastify';
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/create-itinerary" element={<CreateItineraryPage />} />
                 <Route path="*" element={<NotFound />} />
                 <Route path="/contact" element={<ContactPage />} />
             </Routes>

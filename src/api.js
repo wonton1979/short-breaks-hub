@@ -32,6 +32,12 @@ export const getMeFavorites = () =>
 export const getAllItinerariesByCustomSearch = (customSearch) =>
     api.get(`/itineraries/search?${customSearch}`).then((res) => res.data);
 
+export const getCommentList = (itineraryId) =>
+    api.get(`/itineraries/${itineraryId}/comments`).then((res) => res.data);
+
+export const getCommentMe = (itineraryId) =>
+    api.get(`/itineraries/${itineraryId}/comments/me`).then((res) => res.data);
+
 export const postUserRegister = (email, password, displayName) =>
     api.post("/auth/register", { email:email, password:password, displayName:displayName })
         .then((res) => {
@@ -51,6 +57,10 @@ export const postUserPhoto = (file) =>{
         )
 }
 
+export const postComment = (itineraryId,comment) =>
+    api.post(`/itineraries/${itineraryId}/comments`, {body:comment.body,rating:comment.rating}).then((res) => res.data)
+
+
 export const postFavorite = (itineraryId) =>
     api.post(`/itineraries/${itineraryId}/favorite`).then((res) => res.data);
 
@@ -68,6 +78,9 @@ export const updateUserPhoto = (payload) =>
 
 export const deleteFavorite = (itineraryId) =>
     api.delete(`/itineraries/${itineraryId}/favorite`).then((res) => res.data);
+
+export const deleteComment = (itineraryId) =>
+    api.delete(`/itineraries/${itineraryId}/comments`).then((res) => res.data);
 
 
 

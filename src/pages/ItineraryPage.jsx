@@ -8,6 +8,7 @@ import {Helmet} from "react-helmet-async";
 import Lottie from "lottie-react";
 import LoadingAnimation from "../assets/Loading-Animation.json";
 import {showToast} from "../utils/toast.js";
+import CommentsSection from "../components/Comments";
 
 
 export default function ItineraryPage() {
@@ -211,6 +212,11 @@ export default function ItineraryPage() {
                         {/* Day-by-Day */}
                         <h3 className="text-lg font-semibold mt-8 mb-3">Day by Day</h3>
                         <ItineraryDayAccordion schedule={data.schedule} />
+                        <div className="space-y-8">
+                            {/* other parts like hero, info, likes, etc. */}
+
+                            <CommentsSection itineraryId={data.id} />
+                        </div>
                     </article>
 
 
