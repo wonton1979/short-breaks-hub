@@ -12,7 +12,7 @@ export const itineraries = [
         // keep the rest the same (slug, region, etc.)
         schedule: [
             {
-                day: 1,
+                currentTime: 1,
                 title: "Arrival & Old Town",
                 summary:
                     "Airport pickup, check-in, and a relaxed afternoon in Rattanakosin: Grand Palace, Wat Pho, and a sunset view by the river.",
@@ -20,7 +20,7 @@ export const itineraries = [
                     "Morning/midday arrival and hotel check-in. Visit the Grand Palace & Wat Phra Kaew, then Wat Pho (Reclining Buddha). Stroll riverside at sunset; optional short long-tail boat ride. Dinner near Tha Maharaj or Sanam Luang. Early night."
             },
             {
-                day: 2,
+                currentTime: 2,
                 title: "Canals, Temples & Night Cruise",
                 summary:
                     "Morning long-tail boat through canals, visit Wat Arun. Evening Chao Phraya dinner cruise with skyline views.",
@@ -28,7 +28,7 @@ export const itineraries = [
                     "Start with a Klong (canal) tour from Phra Arthit/Saphan Taksin. Visit Wat Arun. Lunch nearby or ICONSIAM. Afternoon rest/massage. Evening Chao Phraya dinner cruise (book ahead) for lit-up temples and skyline."
             },
             {
-                day: 3,
+                currentTime: 3,
                 title: "Markets & Departure",
                 summary:
                     "Explore local markets (Or Tor Kor / Chatuchak if weekend). Optional massage, transfer to airport.",

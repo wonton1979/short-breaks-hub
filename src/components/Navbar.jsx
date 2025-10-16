@@ -15,6 +15,7 @@ export default function Navbar() {
             { id: 'home',    label: 'Home',    type: 'scroll' },
             { id: 'explore', label: 'Explore', type: 'scroll' },
             { id: '/contact', label: 'Contact', type: 'route' },
+            { id: '/create-itinerary',label: 'Create itinerary',type: 'route' },
         ];
         if (Auth.isLoggedIn()) {
             base.splice(2, 0, { id: 'logout', label: 'Logout', type: 'logout' });

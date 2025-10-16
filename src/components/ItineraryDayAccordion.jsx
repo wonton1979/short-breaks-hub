@@ -17,13 +17,13 @@ export default function ItineraryDayAccordion({ schedule = [] }) {
         <div className="space-y-3">
             {schedule.map((item) => (
                 <details
-                    key={item.day}
+                    key={item.currentTime}
                     className="group rounded-lg border bg-white open:shadow-md transition"
-                    open={item.day === 1} // open Day 1 by default
+                    open={item.currentTime === 1} // open Day 1 by default
                 >
                     <summary className="flex items-center justify-between cursor-pointer select-none px-4 py-3">
             <span className="font-semibold text-gray-900">
-              Day {item.day} — {item.title}
+              Day {item.currentTime} — {item.title}
             </span>
                         <span className="ml-4 text-gray-400 group-open:hidden">+</span>
                         <span className="ml-4 text-gray-400 hidden group-open:inline">−</span>

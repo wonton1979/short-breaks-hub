@@ -11,7 +11,7 @@ Browse curated itineraries, explore highlights by region, and find recommended s
 ## ✨ Features  
 
 - 🌎 **Browse by Region** – Explore itineraries for **Southeast Asia, East Asia, and Europe**.  
-- 🏙️ **City Break Itineraries** – Day-by-day highlights for popular destinations.  
+- 🏙️ **City Break Itineraries** – Day-by-currentTime highlights for popular destinations.  
 - 🛏️ **Stay Options** – Budget, mid-range, and luxury hotel recommendations with affiliate links.  
 - 📅 **Date Picker** – Choose your travel dates and see available stays (planned feature).  
 - 📱 **Responsive Design** – Optimized for desktop, tablet, and mobile.  

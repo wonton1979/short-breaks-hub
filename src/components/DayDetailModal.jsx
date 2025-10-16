@@ -14,7 +14,7 @@ export default function DayDetailModal({ day, onClose }) {
             >
                 <header className="flex items-center justify-between px-5 py-4 border-b">
                     <h3 className="text-xl font-bold">
-                        Day {day.day} — {day.title}
+                        Day {day.currentTime} — {day.title}
                     </h3>
                     <button
                         onClick={onClose}

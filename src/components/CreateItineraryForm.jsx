@@ -4,34 +4,34 @@ export default function CreateItineraryForm() {
             {/* Header */}
             <div className="mb-6">
                 <h1 className="text-2xl font-semibold">Create Itinerary</h1>
-                <p className="text-sm text-slate-500">Share your short break with the community.</p>
+                <p className="text-sm mt-2 text-slate-500">Share your short break with the community.</p>
             </div>
 
             {/* Card */}
-            <div className="bg-white border border-slate-200 rounded-lg shadow-sm">
+            <div className="bg-white border border-slate-400 rounded-lg shadow-sm">
                 {/* Basic info */}
-                <section className="p-6 border-b border-slate-100">
+                <section className="p-6 border-b border-slate-300">
                     <h2 className="text-base font-medium mb-4">Basic info</h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2">
                             <label htmlFor="title" className="block text-sm font-medium text-slate-700">Title</label>
                             <input id="title" type="text" placeholder="3 Days in Singapore: Food & Culture"
-                                   className="mt-1 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
+                                   className="mt-1 py-1 px-3 border-2 w-full rounded-md  border-slate-300 focus:border-slate-400 focus:ring-0"
                                    data-field="title" />
                         </div>
 
                         <div>
                             <label htmlFor="country" className="block text-sm font-medium text-slate-700">Country</label>
                             <input id="country" type="text" placeholder="Singapore"
-                                   className="mt-1 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
+                                   className="mt-1 py-1 px-3 border-2 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
                                    data-field="country" />
                         </div>
 
                         <div>
                             <label htmlFor="city" className="block text-sm font-medium text-slate-700">City (optional)</label>
                             <input id="city" type="text" placeholder="Singapore"
-                                   className="mt-1 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
+                                   className="mt-1 py-1 px-3 border-2 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
                                    data-field="city" />
                         </div>
 
@@ -39,7 +39,7 @@ export default function CreateItineraryForm() {
                             <label htmlFor="days" className="block text-sm font-medium text-slate-700">Days</label>
                             <div className="mt-1 flex items-center gap-2">
                                 <input id="days" type="number" min="1" placeholder="3"
-                                       className="w-28 rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
+                                       className="w-28 py-1 px-3 border-2 rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
                                        data-field="days" />
                                 <span className="text-slate-500 text-sm">days</span>
                             </div>
@@ -50,7 +50,7 @@ export default function CreateItineraryForm() {
                             <div className="mt-1 flex items-center gap-2">
                                 <span className="text-slate-500">£</span>
                                 <input id="priceFrom" type="number" min="0" placeholder="250"
-                                       className="w-32 rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
+                                       className="w-32 py-1 px-3 border-2 rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
                                        data-field="priceFrom" />
                             </div>
                         </div>
@@ -59,7 +59,7 @@ export default function CreateItineraryForm() {
                     <div className="mt-4">
                         <label htmlFor="summary" className="block text-sm font-medium text-slate-700">Short summary</label>
                         <textarea id="summary" rows={3} placeholder="Perfect for food lovers and first-time visitors…"
-                                  className="mt-1 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
+                                  className="mt-1 py-1 px-3 border-2 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
                                   data-field="summary" />
                         <p className="text-xs text-slate-500 mt-1">Keep it under 180–220 characters if possible.</p>
                     </div>
@@ -83,30 +83,30 @@ export default function CreateItineraryForm() {
                     </div>
                 </section>
 
-                {/* Day-by-day plan */}
+                {/* Day-by-currentTime plan */}
                 <section className="p-6 border-b border-slate-100">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-base font-medium">Day-by-day plan</h2>
+                        <h2 className="text-base font-medium">Day-by-currentTime plan</h2>
                         <div className="flex items-center gap-2">
                             <button type="button" className="px-3 py-1.5 text-sm rounded-md border border-slate-300 hover:bg-slate-50"
-                                    data-action="add-day">+ Add day</button>
+                                    data-action="add-currentTime">+ Add currentTime</button>
                             <button type="button" className="px-3 py-1.5 text-sm rounded-md border border-slate-300 hover:bg-slate-50"
-                                    data-action="remove-day">− Remove day</button>
+                                    data-action="remove-currentTime">− Remove currentTime</button>
                         </div>
                     </div>
 
-                    {/* Day item (repeat for each day) */}
+                    {/* Day item (repeat for each currentTime) */}
                     <div className="space-y-4" data-list="days">
-                        <div className="rounded-md border border-slate-200 p-4" data-item="day">
+                        <div className="rounded-md border border-slate-400 p-4" data-item="currentTime">
                             <div className="flex items-center justify-between">
                                 <h3 className="font-medium">Day 1</h3>
                                 <button type="button" className="text-xs text-slate-500 hover:text-slate-700"
-                                        data-action="delete-day">Delete</button>
+                                        data-action="delete-currentTime">Delete</button>
                             </div>
                             <label className="block text-sm text-slate-700 mt-3">Plan</label>
                             <textarea rows={3} placeholder="Morning at Gardens by the Bay, afternoon at Chinatown…"
-                                      className="mt-1 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
-                                      data-field="day-plan" />
+                                      className="mt-1 py-1 px-3 border-2 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
+                                      data-field="currentTime-plan" />
                         </div>
                     </div>
                     <p className="text-xs text-slate-500 mt-2">You can add more days later.</p>
@@ -120,7 +120,7 @@ export default function CreateItineraryForm() {
                         <div>
                             <label htmlFor="tags" className="block text-sm font-medium text-slate-700">Tags (optional)</label>
                             <input id="tags" type="text" placeholder="family, food, beach"
-                                   className="mt-1 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
+                                   className="mt-1 py-1 px-3 border-2 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
                                    data-field="tags" />
                             <p className="text-xs text-slate-500 mt-1">Comma-separated. E.g. “family, foodie, budget”.</p>
                         </div>
@@ -128,7 +128,7 @@ export default function CreateItineraryForm() {
                         <div>
                             <label htmlFor="visibility" className="block text-sm font-medium text-slate-700">Visibility</label>
                             <select id="visibility"
-                                    className="mt-1 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
+                                    className="mt-1 py-1 px-3 border-2 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
                                     data-field="visibility">
                                 <option value="public">Public</option>
                                 <option value="private">Private (only me)</option>
