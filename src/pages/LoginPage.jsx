@@ -1,14 +1,31 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { postUserLogin } from "../api.js";
 import {Auth} from "../auth.js";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import { toast } from 'react-toastify';
+import {showToast} from "../utils/toast.js";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [out, setOut] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const reason = params.get('reason');
+        const msg = localStorage.getItem('auth:toast');
+
+
+        if (reason === 'unauthorized' || reason === 'expired') {
+            showToast(msg || (reason === 'expired' ? 'Session expired. Please log in again' : 'Unauthorized. Please log in first'),{
+                variant: 'error',
+                duration: 3500,
+            });
+            localStorage.removeItem('auth:toast');
+        }
+    }, [location.search]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -18,6 +35,7 @@ export default function LoginPage() {
             setOut({ ok: true, user: res.user });
             toast.success(`Welcome back, ${res?.displayName || 'traveler'} !`);
             navigate("/");
+            window.location.reload();
         }).catch((err) => {
             setOut(err.response?.data ? { error: "Incorrect Email Or Password" } : null);
         });

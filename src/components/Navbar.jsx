@@ -15,12 +15,13 @@ export default function Navbar() {
             { id: 'home',    label: 'Home',    type: 'scroll' },
             { id: 'explore', label: 'Explore', type: 'scroll' },
             { id: '/contact', label: 'Contact', type: 'route' },
+            { id: '/live-weather', label: 'Live Weather', type: 'route' },
             { id: '/create-itinerary',label: 'Create itinerary',type: 'route' },
         ];
         if (Auth.isLoggedIn()) {
-            base.splice(2, 0, { id: 'logout', label: 'Logout', type: 'logout' });
+            base.push({ id: 'logout', label: 'Logout', type: 'logout' });
         } else {
-            base.splice(2, 0, { id: '/login', label: 'Login', type: 'route' });
+            base.push({ id: '/login', label: 'Login', type: 'route' });
         }
         return base;
     }, [location.key]);
@@ -49,6 +50,7 @@ export default function Navbar() {
         if (item.type === 'logout') {
             Auth.clear();
             navigate('/');
+            window.location.reload();
             toast.success(`You have logged out successfully.`);
         }
 

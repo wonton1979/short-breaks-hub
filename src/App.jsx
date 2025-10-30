@@ -14,8 +14,49 @@ import CreateItineraryPage from "./pages/CreateItineraryPage.jsx";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import WeatherPage from "./pages/WeatherPage.jsx";
+import useTokenCountdown from "./hooks/useTokenCountdown";
+import BlockingSessionModal from "./components/BlockingSessionModal.jsx";
+import {useState} from "react";
+import {postUserRenewToken} from "./api.js";
 
 function App() {
+
+    const [secondsLeft, setSecondsLeft] = useState(null);
+
+
+    function handleAlmostExpired(secondsRemaining) {
+        if (secondsRemaining <= 120) {
+            setSecondsLeft(secondsRemaining);
+        } else {
+            setSecondsLeft(null);
+        }
+    }
+
+    function handleExpired() {
+        localStorage.removeItem("authToken");
+        localStorage.setItem("auth:toast", "Session expired. Please log in again.");
+        window.location.replace("/login?reason=expired");
+    }
+
+    useTokenCountdown(handleAlmostExpired, handleExpired);
+
+    function handleStaySignedIn() {
+        setSecondsLeft(null);
+        postUserRenewToken().then((data) => {
+            localStorage.setItem("authToken", data);
+            window.location.reload();
+        })
+    }
+
+    function handleLogout() {
+        localStorage.removeItem("authToken");
+        window.location.reload();
+    }
+
+    const shouldShowModal =
+        typeof secondsLeft === "number" && secondsLeft <= 120;
+
+
     return (
         <>
             <Navbar />
@@ -37,11 +78,18 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/create-itinerary" element={<CreateItineraryPage />} />
-                <Route path="/weather" element={<WeatherPage />} />
+                <Route path="/live-weather" element={<WeatherPage />} />
                 <Route path="*" element={<NotFound />} />
                 <Route path="/contact" element={<ContactPage />} />
             </Routes>
             <Footer />
+            {shouldShowModal && (
+                <BlockingSessionModal
+                    secondsLeft={secondsLeft}
+                    onStay={handleStaySignedIn}
+                    onLogout={handleLogout}
+                />
+            )}
         </>
     )
 }

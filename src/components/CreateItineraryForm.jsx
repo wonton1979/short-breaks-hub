@@ -1,4 +1,58 @@
+import {useState} from "react";
+import DayPlanTextArea from "./DayPlanTextArea.jsx";
+import {postUserItineraryPhoto} from "../api.js";
+
 export default function CreateItineraryForm() {
+
+    const [dayPlan , setDayPlan ] = useState([{plan:""}]);
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [file, setFile] = useState(null);
+
+    function handleAddDay(){
+        setDayPlan((days)=>[...days,{plan:""}]);
+    }
+
+    function handleRemoveDay(){
+        if(dayPlan.length > 1){
+            setDayPlan((days)=>days.filter((day,index) => index !== dayPlan.length-1));
+        }
+    }
+
+    function handleDeleteDay(id){
+        if(dayPlan.length > 1){
+            setDayPlan((days)=>days.filter((day,index) => index !== id-1));
+        }
+    }
+
+    function handleUpdateDayPlanContent(id,content){
+        setDayPlan(days=> days.map((day,index)=>{
+            if(index === id - 1){
+                return { plan:content };
+            }
+            return day
+        }));
+    }
+
+    function handlePhotoPreview(e){
+        const selectedPhoto = e.target.files?.[0];
+        if(selectedPhoto){
+            setFile(selectedPhoto);
+            setPreviewUrl(URL.createObjectURL(selectedPhoto));
+        }
+
+    }
+
+    function handleSubmitItinerary(){
+        console.log(file);
+        postUserItineraryPhoto(file).then(res=>{
+            console.log(res);
+        })
+        if(previewUrl){
+            URL.revokeObjectURL(previewUrl)
+            setPreviewUrl(null);
+        }
+    }
+
     return (
         <div className="max-w-3xl mx-auto px-4 py-8">
             {/* Header */}
@@ -69,45 +123,57 @@ export default function CreateItineraryForm() {
                 <section className="p-6 border-b border-slate-100">
                     <h2 className="text-base font-medium mb-4">Cover photo</h2>
                     <div className="flex items-start gap-4">
-                        <div className="h-28 w-44 bg-slate-100 rounded-md border border-dashed border-slate-300 flex items-center justify-center overflow-hidden"
-                             data-preview="hero">
-                            <span className="text-slate-400 text-sm">Preview</span>
-                        </div>
+                        {
+                            previewUrl ? (
+                                <div className="h-28 w-44 bg-slate-100 rounded-md border border-dashed border-slate-300 flex items-center justify-center overflow-hidden"
+                                     data-preview="hero">
+                                    <img src={previewUrl} alt="itinerary photo preview" className="object-cover object-center w-full h-full" />
+                                </div>
+                            ):(
+                                <div className="h-28 w-44 bg-slate-100 rounded-md border border-dashed border-slate-300 flex items-center justify-center overflow-hidden"
+                                     data-preview="hero">
+                                    <span className="text-slate-400 text-sm">Preview</span>
+                                </div>
+                            )
+
+                        }
                         <div className="flex-1">
                             <label htmlFor="hero" className="block text-sm font-medium text-slate-700">Upload</label>
                             <input id="hero" type="file" accept="image/*"
                                    className="mt-1 block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-3 file:rounded-md file:border-0 file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200"
-                                   data-field="heroFile" />
+                                   data-field="heroFile" onChange={handlePhotoPreview} />
                             <p className="text-xs text-slate-500 mt-1">Use a wide image (e.g., 1200×600). JPG/PNG only.</p>
                         </div>
                     </div>
                 </section>
 
-                {/* Day-by-currentTime plan */}
+                {/* Day-by-Day plan */}
                 <section className="p-6 border-b border-slate-100">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-base font-medium">Day-by-currentTime plan</h2>
+                        <h2 className="text-base font-medium">Day-by-Day plan</h2>
                         <div className="flex items-center gap-2">
-                            <button type="button" className="px-3 py-1.5 text-sm rounded-md border border-slate-300 hover:bg-slate-50"
-                                    data-action="add-currentTime">+ Add currentTime</button>
-                            <button type="button" className="px-3 py-1.5 text-sm rounded-md border border-slate-300 hover:bg-slate-50"
-                                    data-action="remove-currentTime">− Remove currentTime</button>
+                            <button type="button" disabled={dayPlan.length >= 7}
+                                    className="px-3 py-1.5 text-sm rounded-md border border-slate-300
+                                    hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-400"
+                                    data-action="add-day" onClick={()=>handleAddDay()}>+ Add Day</button>
+                            <button type="button" disabled={dayPlan.length === 1}
+                                    className="px-3 py-1.5 text-sm rounded-md border border-slate-300
+                                    hover:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-400"
+                                    data-action="remove-day" onClick={()=>handleRemoveDay()}>− Remove Day</button>
                         </div>
                     </div>
 
-                    {/* Day item (repeat for each currentTime) */}
+                    {/* Day item */}
                     <div className="space-y-4" data-list="days">
-                        <div className="rounded-md border border-slate-400 p-4" data-item="currentTime">
-                            <div className="flex items-center justify-between">
-                                <h3 className="font-medium">Day 1</h3>
-                                <button type="button" className="text-xs text-slate-500 hover:text-slate-700"
-                                        data-action="delete-currentTime">Delete</button>
-                            </div>
-                            <label className="block text-sm text-slate-700 mt-3">Plan</label>
-                            <textarea rows={3} placeholder="Morning at Gardens by the Bay, afternoon at Chinatown…"
-                                      className="mt-1 py-1 px-3 border-2 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
-                                      data-field="currentTime-plan" />
-                        </div>
+                        {dayPlan.map((day, index) => (
+                            <DayPlanTextArea
+                                key={index}
+                                day={index+1}
+                                plan={day.plan}
+                                handleUpdateDayPlanContent={handleUpdateDayPlanContent}
+                                handleDeleteDay={handleDeleteDay}
+                            />
+                        ))}
                     </div>
                     <p className="text-xs text-slate-500 mt-2">You can add more days later.</p>
                 </section>
@@ -118,7 +184,7 @@ export default function CreateItineraryForm() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="tags" className="block text-sm font-medium text-slate-700">Tags (optional)</label>
+                            <label htmlFor="tags" className="block text-sm font-medium text-slate-700">Highlights (optional)</label>
                             <input id="tags" type="text" placeholder="family, food, beach"
                                    className="mt-1 py-1 px-3 border-2 w-full rounded-md border-slate-300 focus:border-slate-400 focus:ring-0"
                                    data-field="tags" />
@@ -132,7 +198,6 @@ export default function CreateItineraryForm() {
                                     data-field="visibility">
                                 <option value="public">Public</option>
                                 <option value="private">Private (only me)</option>
-                                <option value="unlisted">Unlisted (shareable link)</option>
                             </select>
                         </div>
                     </div>
@@ -146,7 +211,7 @@ export default function CreateItineraryForm() {
                 <button type="button" className="px-4 py-2 rounded-md border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                         data-action="save-draft">Save draft</button>
                 <button type="button" className="px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700"
-                        data-action="publish">Publish</button>
+                        data-action="publish" onClick={handleSubmitItinerary}>Publish</button>
             </div>
         </div>
     );

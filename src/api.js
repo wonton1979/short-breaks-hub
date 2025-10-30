@@ -1,4 +1,11 @@
 import axios from "axios";
+import {isExpired} from "./utils/jwtParser.js";
+import {showToast} from "./utils/toast.js";
+
+export const publicApi = axios.create({
+    baseURL: import.meta.env.VITE_API_BASE || "http://localhost:8080/api",
+    timeout: 5000,
+});
 
 export const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE || "http://localhost:8080/api",
@@ -6,53 +13,56 @@ export const api = axios.create({
 });
 
 export const getItineraryBySlug = (slug) =>
-    api.get(`/itineraries/slug/${slug}`).then((res) => res.data);
+    publicApi.get(`/itineraries/slug/${slug}`).then((res) => res.data);
 
 export const getCountriesByRegion = (region) =>
-    api.get(`/itineraries/region/${region}`).then((res) => res.data);
+    publicApi.get(`/itineraries/region/${region}`).then((res) => res.data);
 
 export const getItinerariesByCountry = (country) =>
-    api.get(`/itineraries/browse/${country}`).then((res) => res.data);
+    publicApi.get(`/itineraries/browse/${country}`).then((res) => res.data);
 
 export const getItinerariesByRegion = (region) =>
-    api.get(`/itineraries/${region}`).then((res) => res.data);
+    publicApi.get(`/itineraries/${region}`).then((res) => res.data);
 
 export const getMe = () =>
     api.get('/auth/me').then(res => res.data)
 
 export const getFavoritesCount = (itineraryId) =>
-    api.get(`/itineraries/${itineraryId}/favorites/count`).then((res) => res.data);
+    publicApi.get(`/itineraries/${itineraryId}/favorites/count`).then((res) => res.data);
 
 export const getFavoritesMe = (itineraryId) =>
-    api.get(`/itineraries/${itineraryId}/favorites/me`).then((res) => res.data);
+    publicApi.get(`/itineraries/${itineraryId}/favorites/me`).then((res) => res.data);
 
 export const getMeFavorites = () =>
-    api.get(`/itineraries/me/favorites`).then((res) => res.data);
+    publicApi.get(`/itineraries/me/favorites`).then((res) => res.data);
 
 export const getAllItinerariesByCustomSearch = (customSearch) =>
-    api.get(`/itineraries/search?${customSearch}`).then((res) => res.data);
+    publicApi.get(`/itineraries/search?${customSearch}`).then((res) => res.data);
 
 export const getCommentList = (itineraryId) =>
-    api.get(`/itineraries/${itineraryId}/comments`).then((res) => res.data);
+    publicApi.get(`/itineraries/${itineraryId}/comments`).then((res) => res.data);
 
 export const getCommentMe = (itineraryId) =>
-    api.get(`/itineraries/${itineraryId}/comments/me`).then((res) => res.data);
+    publicApi.get(`/itineraries/${itineraryId}/comments/me`).then((res) => res.data);
 
 export const postUserRegister = (email, password, displayName) =>
-    api.post("/auth/register", { email:email, password:password, displayName:displayName })
+    publicApi.post("/auth/register", { email:email, password:password, displayName:displayName })
         .then((res) => {
             res.data;
         })
 
 export const postUserLogin = (email, password) =>
-    api.post("/auth/login", { email:email,password: password })
+    publicApi.post("/auth/login", { email:email,password: password })
         .then((res) => res.data
         )
+
+export const postUserRenewToken = () =>
+    api.post("/auth/me/renew-token").then((res) => res.data);
 
 export const postUserPhoto = (file) =>{
     const formData = new FormData();
     formData.append("file", file);
-    return api.post("/auth/me/photo", formData,{headers: { 'Content-Type': 'multipart/form-data' }})
+    return api.post("/auth/me/photo", formData)
         .then((res) => res.data
         )
 }
@@ -63,6 +73,14 @@ export const postComment = (itineraryId,comment) =>
 
 export const postFavorite = (itineraryId) =>
     api.post(`/itineraries/${itineraryId}/favorite`).then((res) => res.data);
+
+export const postUserItineraryPhoto = (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post("/user-itineraries/upload", formData,{headers: { 'Content-Type': 'multipart/form-data' }})
+        .then((res) => res.data
+        )
+}
 
 
 
@@ -86,6 +104,31 @@ export const deleteComment = (itineraryId) =>
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("authToken");
+    if (!token || isExpired(token)) {
+        localStorage.removeItem("authToken");
+        localStorage.setItem("auth:logout", String(Date.now()));
+        window.location.replace("/login?reason=expired");
+        localStorage.setItem("auth:toast", "Session expired. Please log in again.");
+        throw new axios.Cancel("token expired");
+    }
+
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
 });
+
+api.interceptors.response.use(
+    (res) => res,
+    (err) => {
+        const status = err?.response?.status;
+        if (status === 401 || status === 403) {
+            localStorage.removeItem("authToken");
+            localStorage.setItem("auth:logout", String(Date.now()));
+            if (location.pathname !== "/login") {
+                localStorage.setItem("auth:toast", "Unauthorized. Please log in first.");
+                window.location.replace("/login?reason=unauthorized");
+
+            }
+        }
+        return Promise.reject(err);
+    }
+);
