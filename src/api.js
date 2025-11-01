@@ -8,7 +8,7 @@ export const publicApi = axios.create({
 });
 
 export const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE || "http://localhost:8080/api",
+    baseURL: import.meta.env.VITE_API_BASE,
     timeout: 5000,
 });
 
