@@ -3,7 +3,7 @@ import {isExpired} from "./utils/jwtParser.js";
 import {showToast} from "./utils/toast.js";
 
 export const publicApi = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE || "http://localhost:8080/api",
+    baseURL: import.meta.env.VITE_API_BASE,
     timeout: 5000,
 });
 
