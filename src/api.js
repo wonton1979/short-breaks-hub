@@ -43,7 +43,7 @@ export const getCommentList = (itineraryId) =>
     publicApi.get(`/itineraries/${itineraryId}/comments`).then((res) => res.data);
 
 export const getCommentMe = (itineraryId) =>
-    publicApi.get(`/itineraries/${itineraryId}/comments/me`).then((res) => res.data);
+    api.get(`/itineraries/${itineraryId}/comments/me`).then((res) => res.data);
 
 export const postUserRegister = (email, password, displayName) =>
     publicApi.post("/auth/register", { email:email, password:password, displayName:displayName })
@@ -108,7 +108,7 @@ api.interceptors.request.use((config) => {
         localStorage.removeItem("authToken");
         localStorage.setItem("auth:logout", String(Date.now()));
         window.location.replace("/login?reason=expired");
-        localStorage.setItem("auth:toast", "Session expired. Please log in again.");
+        localStorage.setItem("auth:toast", "This operation is for user only,please log in first.");
         throw new axios.Cancel("token expired");
     }
 

@@ -9,6 +9,7 @@ import Lottie from "lottie-react";
 import LoadingAnimation from "../assets/Loading-Animation.json";
 import {showToast} from "../utils/toast.js";
 import CommentsSection from "../components/Comments";
+import {loadSubFolderImages} from "../utils/loadImage.js";
 
 
 export default function ItineraryPage() {
@@ -160,7 +161,7 @@ export default function ItineraryPage() {
                 {/* Hero */}
                 <section
                     className="relative h-[42vh] md:h-[55vh] bg-center bg-cover"
-                    style={{ backgroundImage: `url(${data.hero})` }}
+                    style={{ backgroundImage: `url(${loadSubFolderImages(data.hero.split("/")[3],data.hero.split("/")[4].split(".")[0])})` }}
                 >
                     <div className="absolute inset-0 bg-black/40" />
                     <div className="relative z-10 h-full flex items-center">

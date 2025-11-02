@@ -19,14 +19,17 @@ export default function Comments({ itineraryId }) {
         getCommentList(itineraryId).then((res) => {
             setComments(res.content);
         })
-        getCommentMe(itineraryId).then((res) => {
-            if(res.hasUserCommented){
-                setShowComposer(true);
-                setBody(res.comment)
-                res.rating === "No Rating" ? setRating(0) : setRating(res.rating);
-                setHasUserCommented(true);
-            }
-        })
+        if(localStorage.getItem("authToken"))
+        {
+            getCommentMe(itineraryId).then((res) => {
+                if(res.hasUserCommented){
+                    setShowComposer(true);
+                    setBody(res.comment)
+                    res.rating === "No Rating" ? setRating(0) : setRating(res.rating);
+                    setHasUserCommented(true);
+                }
+            })
+        }
     }
 
     useEffect(() => {
