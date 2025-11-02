@@ -4,7 +4,7 @@ Discover the best short city breaks and weekend getaways — all in one place.
 Browse curated itineraries, explore highlights by region, and find recommended stays with budget, mid-range, and luxury options.  
 
 ## 🚀 Live Demo  
-[👉 View the Website](https://www.short-breaks=hub.com)  
+[👉 View the Website](https://www.shortbreakshub.com)  
 
 ---
 
@@ -26,19 +26,6 @@ Browse curated itineraries, explore highlights by region, and find recommended s
 - **State Management:** React Hooks  
 - **Backend (Planned):** Node.js / Spring Boot + Database (Supabase or PostgreSQL)  
 - **Deployment:** Netlify (Frontend), Render (Backend)  
-
----
-
-## 📸 Screenshots  
-
-### Homepage  
-![Homepage Screenshot](./screenshots/homepage.png)  
-
-### Region Page  
-![Region Page Screenshot](./screenshots/region.png)  
-
-### Itinerary Page  
-![Itinerary Page Screenshot](./screenshots/itinerary.png)  
 
 ---
 
