@@ -4,7 +4,7 @@ Discover the best short city breaks and weekend getaways — all in one place.
 Browse curated itineraries, explore highlights by region, and find recommended stays with budget, mid-range, and luxury options.  
 
 ## 🚀 Live Demo  
-[👉 View the Website](https://www.shortbreakshub.com)  
+[👉 View the Website](https://www.shortbreakhub.com)  
 
 ---
 
