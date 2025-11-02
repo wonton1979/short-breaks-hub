@@ -1,9 +1,11 @@
 import {Link} from "react-router-dom";
 import {getFavoritesCount} from "../api.js";
 import React,{useEffect} from "react";
+import {loadSubFolderImages} from "../utils/loadImage.js";
 
 export default function ItineraryCard({it,showLikes=false}) {
     const [favoritesCount, setFavoritesCount] = React.useState(0);
+
     useEffect(() => {
         if(it){
             getFavoritesCount(it.id).then(data => {
@@ -17,7 +19,7 @@ export default function ItineraryCard({it,showLikes=false}) {
             <li key={it.id} className="bg-white rounded-xl shadow hover:shadow-md transition">
                 <Link to={`/itinerary/${it.slug}`} className="block">
                     <img
-                        src={it.hero}
+                        src={loadSubFolderImages(it.hero.split("/")[3],it.hero.split("/")[4].split(".")[0])}
                         alt={it.title}
                         loading="lazy"
                         decoding="async"

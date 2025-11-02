@@ -33,7 +33,6 @@ export default function BrowsePage() {
         params.set("size", "12");
         params.set("country", country);
         if (sort) params.set("sort", sort);
-        console.log(params)
         getAllItinerariesByCustomSearch(params.toString()).then((res) => setItems(res.content))
             .catch((err) => console.log(err));
     }
