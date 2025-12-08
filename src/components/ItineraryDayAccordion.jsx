@@ -41,7 +41,12 @@ export default function ItineraryDayAccordion({ schedule = [] }) {
                     </div>
                 </details>
             ))}
-            <DayDetailModal day={selectedDay} onClose={() => setSelectedDay(null)} />
+            {
+                selectedDay && (
+                    <DayDetailModal day={selectedDay} onClose={() => setSelectedDay(null)} />
+                )
+            }
+
         </div>
     );
 }

@@ -1,25 +1,36 @@
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {getFavoritesCount} from "../api.js";
-import React,{useEffect} from "react";
+import {useEffect, useState} from "react";
 import {loadSubFolderImages} from "../utils/loadImage.js";
 
-export default function ItineraryCard({it,showLikes=false}) {
-    const [favoritesCount, setFavoritesCount] = React.useState(0);
-
+export default function ItineraryCard({it,showLikes=false,itineraryType="build in"}) {
+    const [favoritesCount, setFavoritesCount] = useState(0);
+    const [navigateTo, setNavigateTo] = useState("");
     useEffect(() => {
         if(it){
-            getFavoritesCount(it.id).then(data => {
-                setFavoritesCount(data.count);
-            })
+            if(itineraryType === "build in")
+            {
+                setNavigateTo(`/itinerary/${it.slug}`);
+                getFavoritesCount(it.id).then(data => {
+                    setFavoritesCount(data.count);
+                })
+            }
+            else {
+                setNavigateTo(`/user-itinerary/${it.slug}`);
+            }
+
         }
 
     },[])
     return (
         <>
-            <li key={it.id} className="bg-white rounded-xl shadow hover:shadow-md transition">
-                <Link to={`/itinerary/${it.slug}`} className="block">
+            <li key={it.id} className="bg-white rounded-xl shadow-md border border-gray-400 hover:shadow-lg transition hover:scale-105">
+                <Link to={navigateTo} className="block">
                     <img
-                        src={loadSubFolderImages(it.hero.split("/")[3],it.hero.split("/")[4].split(".")[0])}
+                        src={ itineraryType === "build in" ?
+                            loadSubFolderImages(it.hero.split("/")[3],it.hero.split("/")[4].split(".")[0]) :
+                            it.coverPhoto
+                    }
                         alt={it.title}
                         loading="lazy"
                         decoding="async"

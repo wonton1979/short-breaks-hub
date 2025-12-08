@@ -18,6 +18,10 @@ import useTokenCountdown from "./hooks/useTokenCountdown";
 import BlockingSessionModal from "./components/BlockingSessionModal.jsx";
 import {useState} from "react";
 import {postUserRenewToken} from "./api.js";
+import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
+import CommunityItineraryPage from "./pages/CommunityItineraryPage.jsx";
+import CommunityTripsPage from "./pages/CommunityTripsPage.jsx";
+import CommunityRegionPage from "./pages/CommunityRegionPage.jsx";
 
 function App() {
 
@@ -73,12 +77,16 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/:region" element={<RegionPage />} />
                 <Route path="/itinerary/:slug" element={<ItineraryPage />} />
+                <Route path="/user-itinerary/:slug" element={<CommunityItineraryPage />} />
                 <Route path="/browse/:country" element={<BrowsePage />} />
+                <Route path="/community-itineraries/region" element={<CommunityTripsPage />} />
+                <Route path="/community-itineraries/region/:region" element={<CommunityRegionPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/create-itinerary" element={<CreateItineraryPage />} />
                 <Route path="/live-weather" element={<WeatherPage />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="*" element={<NotFound />} />
                 <Route path="/contact" element={<ContactPage />} />
             </Routes>

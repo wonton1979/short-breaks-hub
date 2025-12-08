@@ -23,7 +23,6 @@ export default function Comments({ itineraryId }) {
         {
             getCommentMe(itineraryId).then((res) => {
                 if(res.hasUserCommented){
-                    setShowComposer(true);
                     setBody(res.comment)
                     res.rating === "No Rating" ? setRating(0) : setRating(res.rating);
                     setHasUserCommented(true);
@@ -67,6 +66,7 @@ export default function Comments({ itineraryId }) {
             setBody("");
             setRating(0);
             setHasUserCommented(false);
+            setCommentCount(c => c - 1);
         }).catch(err => {
             loadComments(0)
             showToast("Failed to delete comment", { variant: "error",duration:4000 });
@@ -83,7 +83,7 @@ export default function Comments({ itineraryId }) {
                     className="px-3 py-2 rounded border hover:bg-slate-50 cursor-pointer"
                     onClick={() => setShowComposer(s => !s)}
                 >
-                    {showComposer ? "Cancel" : "Write a comment"}
+                    {showComposer ? "Cancel" : hasUserCommented ? "Modify My Comment" : "Write My Comment"}
                 </button>
             </div>
 

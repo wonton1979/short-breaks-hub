@@ -1,33 +1,31 @@
-export function isExpired(token) {
-    try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        if (!payload.exp) return false;
-        const now = Date.now() / 1000;
-        return payload.exp < now;
-    } catch (err) {
-        return true;
-    }
-}
-
+import { jwtDecode } from "jwt-decode";
 
 export function parseJWT(token) {
     try {
-        const payload = token.split(".")[1];
-        return JSON.parse(atob(payload));
+        return jwtDecode(token);
     } catch {
         return null;
     }
 }
 
-
-export function getExpiryMs(token) {
-    const p = parseJWT(token);
-    return p?.exp ? p.exp * 1000 : null;
+export function isExpired(token) {
+    try {
+        const { exp } = jwtDecode(token);
+        return exp < Date.now() / 1000;
+    } catch {
+        return true;
+    }
 }
 
+export function getUserId() {
+    const token = localStorage.getItem("authToken");
+    if (!token) return null;
 
-export function msUntilExpiry(token) {
-    const expMs = getExpiryMs(token);
-    if (!expMs) return 0;
-    return expMs - Date.now();
+    try {
+        const decoded = jwtDecode(token);
+        return decoded.sub;
+    } catch {
+        return null;
+    }
 }
+

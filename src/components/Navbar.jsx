@@ -9,6 +9,7 @@ export default function Navbar() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const [activeScroll, setActiveScroll] = useState("home");
 
     const links = useMemo(() => {
         const base = [
@@ -16,7 +17,7 @@ export default function Navbar() {
             { id: 'explore', label: 'Explore', type: 'scroll' },
             { id: '/contact', label: 'Contact', type: 'route' },
             { id: '/live-weather', label: 'Live Weather', type: 'route' },
-            { id: '/create-itinerary',label: 'Create itinerary',type: 'route' },
+            { id: '/community-itineraries/region',label: 'Community Trips',type: 'route' },
         ];
         if (Auth.isLoggedIn()) {
             base.push({ id: 'logout', label: 'Logout', type: 'logout' });
@@ -70,8 +71,30 @@ export default function Navbar() {
                     {links.map((l) => (
                         <li key={l.label}>
                             <button
-                                onClick={() => go(l)}
-                                className="text-sm font-medium text-gray-700 hover:text-gray-900 cursor-pointer"
+                                onClick={() =>
+                                {
+                                    if(l.type === 'scroll') {
+                                        setActiveScroll(l.id);
+                                    }
+                                    go(l)
+                                }
+                                }
+                                className={`inline-block text-left py-3 text-gray-700 text-sm font-medium cursor-pointer 
+                                ${
+                                    l.type === 'route' &&
+                                    ((l.id === '/' && location.pathname === '/') ||
+                                        (l.id !== '/' && location.pathname.startsWith(l.id)))
+                                        ? 'text-blue-600 border-b-[2px] border-blue-600 pb-1'
+                                        : ''
+
+                                } ${
+                                    l.type === 'scroll' && location.pathname === '/' && activeScroll === l.id
+                                        ? 'text-blue-600 border-b-[2px] border-blue-600 pb-1'
+                                        : l.type === 'scroll'
+                                            ? 'text-gray-700 hover:text-gray-900'
+                                            : ''
+                                }                              
+                                        `}
                             >
                                 {l.label}
                             </button>
@@ -98,7 +121,22 @@ export default function Navbar() {
                         <button
                             key={l.label}
                             onClick={() => go(l)}
-                            className="block w-full text-left px-4 py-3 text-gray-700"
+                            className={`inline-block text-left py-3 text-gray-700 text-sm font-medium cursor-pointer 
+                                ${
+                                l.type === 'route' &&
+                                ((l.id === '/' && location.pathname === '/') ||
+                                    (l.id !== '/' && location.pathname.startsWith(l.id)))
+                                    ? 'text-blue-600 border-b-[2px] border-blue-600 pb-1'
+                                    : ''
+
+                            } ${
+                                l.type === 'scroll' && location.pathname === '/' && activeScroll === l.id
+                                    ? 'text-blue-600 border-b-[2px] border-blue-600 pb-1'
+                                    : l.type === 'scroll'
+                                        ? 'text-gray-700 hover:text-gray-900'
+                                        : ''
+                            }                              
+                                        `}
                         >
                             {l.label}
                         </button>

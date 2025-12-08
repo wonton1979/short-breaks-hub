@@ -1,6 +1,5 @@
 import axios from "axios";
 import {isExpired} from "./utils/jwtParser.js";
-import {showToast} from "./utils/toast.js";
 
 export const publicApi = axios.create({
     baseURL: import.meta.env.VITE_API_BASE,
@@ -30,11 +29,17 @@ export const getMe = () =>
 export const getFavoritesCount = (itineraryId) =>
     publicApi.get(`/itineraries/${itineraryId}/favorites/count`).then((res) => res.data);
 
+export const getCommunityFavoritesCount = (itineraryId) =>
+    publicApi.get(`/community-itineraries/${itineraryId}/favorites/count`).then((res) => res.data);
+
 export const getFavoritesMe = (itineraryId) =>
-    publicApi.get(`/itineraries/${itineraryId}/favorites/me`).then((res) => res.data);
+    api.get(`/itineraries/${itineraryId}/favorites/me`).then((res) => res.data);
+
+export const getCommunityFavoritesMe = (itineraryId) =>
+    api.get(`/community-itineraries/${itineraryId}/favorites/me`).then((res) => res.data);
 
 export const getMeFavorites = () =>
-    publicApi.get(`/itineraries/me/favorites`).then((res) => res.data);
+    api.get(`/itineraries/me/favorites`).then((res) => res.data);
 
 export const getAllItinerariesByCustomSearch = (customSearch) =>
     publicApi.get(`/itineraries/search?${customSearch}`).then((res) => res.data);
@@ -44,6 +49,35 @@ export const getCommentList = (itineraryId) =>
 
 export const getCommentMe = (itineraryId) =>
     api.get(`/itineraries/${itineraryId}/comments/me`).then((res) => res.data);
+
+export const getMeItineraries = () =>
+    api.get(`/community-itineraries/me`).then((res) => res.data);
+
+export const getUserItineraryBySlug = (slug) =>
+    publicApi.get(`/community-itineraries/slug/${slug}`).then((res) => res.data);
+
+export const getCommunityCountriesByRegion = (region) =>
+    publicApi.get(`/community-itineraries/region/${region}`).then((res) => res.data);
+
+export const getCommunityItinerariesByRegion = (region) =>
+    publicApi.get(`/community-itineraries/${region}`).then((res) => res.data);
+
+export const getQuestionThreadSummary = (itineraryId) =>
+    publicApi.get(`/community-itineraries/${itineraryId}/question-threads`).then((res) => res.data);
+
+export const getQuestionThread = (itineraryId,threadId) =>
+    publicApi.get(`/community-itineraries/${itineraryId}/question-threads/${threadId}`).then((res) => res.data);
+
+export const getUserDraftCount = () =>
+    api.get(`/community-itineraries/draft/count`).then((res) => res.data);
+
+export const getMeSavedDraft = () =>
+    api.get(`/community-itineraries/draft/me`).then(res => res.data);
+
+export const getDraftByDraftId = (draftId) =>
+    api.get(`/community-itineraries/draft/${draftId}`).then(res => res.data);
+
+
 
 export const postUserRegister = (email, password, displayName) =>
     publicApi.post("/auth/register", { email:email, password:password, displayName:displayName })
@@ -74,15 +108,53 @@ export const postComment = (itineraryId,comment) =>
 export const postFavorite = (itineraryId) =>
     api.post(`/itineraries/${itineraryId}/favorite`).then((res) => res.data);
 
+export const postCommunityFavorite = (itineraryId) =>
+    api.post(`/community-itineraries/${itineraryId}/favorite`).then((res) => res.data);
+
 export const postUserItineraryPhoto = (file) => {
     const formData = new FormData();
     formData.append("file", file);
-    return api.post("/user-itineraries/upload", formData,{headers: { 'Content-Type': 'multipart/form-data' }})
+    return api.post("/community-itineraries/upload-itinerary-cover-photo", formData,{headers: { 'Content-Type': 'multipart/form-data' }})
         .then((res) => res.data
         )
 }
 
+export const postUserItinerary = (userItinerary) => {
+    return api.post("/community-itineraries/publish-itinerary",userItinerary).then((res) => res.data);
+}
 
+export const postUserDraftItinerary = (userDraftItinerary) => {
+    return api.post("/community-itineraries/draft/save-draft",userDraftItinerary).then((res) => res.data);
+}
+
+export const postAQuestionOrAnswer = (itineraryId,content) =>{
+    return api.post(`/community-itineraries/${itineraryId}/question-threads`, { content }).then((res) => res.data);
+}
+
+export const postQuestionThread = (itineraryId,threadId,content) =>{
+    return api.post(
+            `/community-itineraries/${itineraryId}/question-threads/${threadId}/messages`,
+            { content }
+        )
+}
+
+export const postDraftPhoto = (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post("community-itineraries/draft/upload-draft-cover-photo", formData,{headers: { 'Content-Type': 'multipart/form-data' }})
+        .then((res) => res.data
+        )
+}
+
+export const postUpdateDraftCoverPhoto = (file,existingCoverUrl) =>{
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("existingCoverUrl", existingCoverUrl);
+
+    return api.post("community-itineraries/draft/update-draft-cover-photo", formData,{headers: { 'Content-Type': 'multipart/form-data' }})
+        .then((res) => res.data
+        )
+}
 
 export const updateUser = (payload) =>
     api.put("/auth/me",payload )
@@ -94,20 +166,27 @@ export const updateUserPhoto = (payload) =>
         .then((res) =>  res.data || payload
         )
 
+export const updateDraft = (draftId,payload) =>
+    api.put(`community-itineraries/draft/${draftId}`,payload ).then((res) =>  res.data)
+
 export const deleteFavorite = (itineraryId) =>
     api.delete(`/itineraries/${itineraryId}/favorite`).then((res) => res.data);
+
+export const deleteCommunityFavorite = (itineraryId) =>
+    api.delete(`/community-itineraries/${itineraryId}/favorite`).then((res) => res.data);
 
 export const deleteComment = (itineraryId) =>
     api.delete(`/itineraries/${itineraryId}/comments`).then((res) => res.data);
 
-
+export const deleteDraft = (draftId) =>
+    api.delete(`community-itineraries/draft/${draftId}`).then((res) =>  res.data)
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("authToken");
     if (!token || isExpired(token)) {
         localStorage.removeItem("authToken");
         localStorage.setItem("auth:logout", String(Date.now()));
-        window.location.replace("/login?reason=expired");
+        //window.location.replace("/login?reason=expired");
         localStorage.setItem("auth:toast", "This operation is for user only,please log in first.");
         throw new axios.Cancel("token expired");
     }
@@ -125,7 +204,7 @@ api.interceptors.response.use(
             localStorage.setItem("auth:logout", String(Date.now()));
             if (location.pathname !== "/login") {
                 localStorage.setItem("auth:toast", "Unauthorized. Please log in first.");
-                window.location.replace("/login?reason=unauthorized");
+                //window.location.replace("/login?reason=unauthorized");
 
             }
         }

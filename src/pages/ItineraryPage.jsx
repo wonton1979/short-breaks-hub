@@ -10,6 +10,7 @@ import LoadingAnimation from "../assets/Loading-Animation.json";
 import {showToast} from "../utils/toast.js";
 import CommentsSection from "../components/Comments";
 import {loadSubFolderImages} from "../utils/loadImage.js";
+import {isExpired} from "../utils/jwtParser.js";
 
 
 export default function ItineraryPage() {
@@ -107,15 +108,22 @@ export default function ItineraryPage() {
     React.useEffect(() => {
         if (!data?.id) return
 
+        getFavoritesCount(data.id).then(({count}) => {
+            setLikes(s => ({ ...s, count: count || 0 }))
+        }).catch(err => console.log(err));
+
+        const token = localStorage.getItem("authToken");
+        if (!token || isExpired(token)) {
+            return;
+        }
+
         getFavoritesMe(data.id).then(
             ({liked}) => {
+                console.log(liked);
                 setLikes(s => ({ ...s, liked: !!liked }))
             }
         ).catch(err => console.log(err));
 
-        getFavoritesCount(data.id).then(({count}) => {
-            setLikes(s => ({ ...s, count: count || 0 }))
-        }).catch(err => console.log(err));
     }, [data?.id]);
 
 

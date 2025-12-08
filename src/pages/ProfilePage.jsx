@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {getMe, updateUser, postUserPhoto, updateUserPhoto,getMeFavorites} from '../api.js';
+import {useNavigate, useSearchParams} from 'react-router-dom';
+import {getMe, updateUser, postUserPhoto, updateUserPhoto,getMeFavorites,getMeItineraries,getMeSavedDraft} from '../api.js';
 import {Auth} from '../auth.js';
 import {showToast} from "../utils/toast.js";
-import {toast} from "react-toastify";
 import ItineraryCard from "../components/ItineraryCard.jsx";
 
 export default function ProfilePage() {
     const [out, setOut] = useState({loading: true, data: null, error: null});
+    const [userItineraries, setUserItineraries] = useState([]);
+    const [draftItineraries, setDraftItineraries] = useState([]);
     const navigate = useNavigate();
     const [tab, setTab] = useState("overview");
+    const [favoriteTab, setFavoriteTab] = useState("built-in");
     const [settings, setSettings] = useState({
         userId: undefined,
         displayName: "",
@@ -21,6 +23,9 @@ export default function ProfilePage() {
     });
     const [saving, setSaving] = useState(false);
     const [favorites, setFavorites] = useState([]);
+    const [showWarningModal, setShowWarningModal] = useState(null);
+    const [searchParams] = useSearchParams()
+
 
 
     useEffect(() => {
@@ -43,15 +48,42 @@ export default function ProfilePage() {
    ${tab === name ? "border-sky-600 text-sky-700"
             : "border-transparent text-slate-600 hover:text-slate-900"}`;
 
+    const favoriteTabClass = (active) =>
+        `inline-flex items-center rounded-md border px-3 py-1 text-xs font-medium
+   ${active
+            ? "bg-sky-100 text-sky-700 border-sky-300"
+            : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+        }`;
+
+
 
     useEffect(() => {
         if (!Auth.isLoggedIn()) {
-            navigate('/login');
             return;
         }
         getMe()
             .then(data => {
+
                 setOut({loading: false, data, error: null});
+
+                getMeFavorites().then(data => {
+                    setFavorites(data.content)
+                }).catch(err => {
+                    showToast("Sorry,But You Don't Have Any Favorites Yet!",
+                        {variant:"error",duration:4000})
+                })
+
+                getMeItineraries().then(data => {
+                    setUserItineraries(data.content)
+                    const tab = searchParams.get("tab");
+                    if (tab && tab === "published-itineraries") {
+                        setTab("Published Itineraries")
+                    }
+                })
+
+                getMeSavedDraft().then(data => {
+                    setDraftItineraries(data);
+                })
             })
             .catch(err => {
                 setOut({loading: false, data: null, error: String(err)});
@@ -74,14 +106,14 @@ export default function ProfilePage() {
 
     }
 
-    useEffect(() => {
-        getMeFavorites().then(data => {
-            setFavorites(data.content)
-        }).catch(err => {
-            showToast("Sorry,But You Don't Have Any Favorites Yet!",
-                {variant:"error",duration:4000})
-        })
-    }, []);
+    function handleContinueDraft(draftId){
+        navigate("/create-itinerary?draftId=" + draftId);
+    }
+
+    function handleDiscardDraft(draftId){
+        setShowWarningModal({"msgTitle": "Draft Delete Confirmation",
+            "msg":"Are you sure you want to delete this draft ?"});
+    }
 
 
     if (out.loading) return <div className="p-4">Loading…</div>;
@@ -116,11 +148,22 @@ export default function ProfilePage() {
             </section>
             {/* Tabs */}
             <nav className="mt-6 border-b">
-                <div className="-mb-px flex gap-6">
-                    <button className={tabClass("overview")}  onClick={() => setTab("overview")}>Overview</button>
-                    <button className={tabClass("favorites")} onClick={() => setTab("favorites")}>Favorites</button>
-                    <button className={tabClass("bookmarks")} onClick={() => setTab("bookmarks")}>Bookmarks</button>
-                    <button className={tabClass("settings")}  onClick={() => setTab("settings")}>Settings</button>
+                <div className="mb-px flex items-center justify-between">
+                    <div className="-mb-2.5 flex gap-6">
+                        <button className={tabClass("overview")}  onClick={() => setTab("overview")}>Overview</button>
+                        <button className={tabClass("favorites")} onClick={() => setTab("favorites")}>Favorites</button>
+                        <button className={tabClass("Published Itineraries")} onClick={() => setTab("Published Itineraries")}>Published Itineraries</button>
+                        <button className={tabClass("Draft Itineraries")} onClick={() => setTab("Draft Itineraries")}>Draft Itineraries</button>
+                        <button className={tabClass("settings")}  onClick={() => setTab("settings")}>Settings</button>
+                    </div>
+                    <button
+                        onClick={() => navigate("/create-itinerary")}
+                        className="inline-flex items-center rounded-sm bg-sky-600 px-3 py-1.5 text-sm
+                                     font-semibold text-white shadow-sm hover:bg-sky-700 mb-2
+                                     focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
+                    >
+                        + Create Itinerary
+                    </button>
                 </div>
             </nav>
 
@@ -155,22 +198,137 @@ export default function ProfilePage() {
 
                 {tab === "favorites" && (
                     <div className="rounded-lg border bg-white p-6 text-slate-700 shadow-sm">
+                        {/* Sub-tabs header */}
+                        <div className="mb-4 flex items-center gap-2">
+                            <span className="text-sm font-medium text-slate-600">Show:</span>
+
+                            <button
+                                type="button"
+                                className={favoriteTabClass(favoriteTab === "built-in")}
+                                onClick={() => setFavoriteTab("built-in")}
+                            >
+                                Built-in Trips
+                            </button>
+
+                            <button
+                                type="button"
+                                className={favoriteTabClass(favoriteTab === "community")}
+                                onClick={() => setFavoriteTab("community")}
+                            >
+                                Community Trips
+                            </button>
+                        </div>
+
+                        {/* Built-in favorites */}
+                        {favoriteTab === "built-in" && (
+                            <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                {favorites.map((it) => (
+                                    <ItineraryCard key={it.slug} it={it} showLikes={true} />
+                                ))}
+                            </ul>
+                        )}
+
+                        {/* Community favorites */}
+                        {favoriteTab === "community" && (
+                            <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                {favorites.length === 0 ? (
+                                    <p className="text-sm text-slate-500">
+                                        You haven’t liked any community trips yet.
+                                    </p>
+                                ) : (
+                                    favorites.map((it) => (
+                                        <ItineraryCard key={it.slug} it={it} showLikes={true} />
+                                    ))
+                                )}
+                            </ul>
+                        )}
+                    </div>
+                )}
+
+
+                {tab === "Published Itineraries" && (
+                    <div className="rounded-lg border bg-white p-6 text-slate-700 shadow-sm">
                         <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {favorites.map((it) => (
-                                <ItineraryCard key={it.slug} it={it} showLikes={true} />
-                            ))}
+                            { userItineraries.length > 0 ?
+                                    userItineraries.map((it,index) => (
+                                        <ItineraryCard key={index} it={it} itineraryType="user" />
+                                    )):null
+                            }
                         </ul>
                     </div>
                 )}
 
-                {tab === "bookmarks" && (
+
+                {tab === "Draft Itineraries" && (
                     <div className="rounded-lg border bg-white p-6 text-slate-700 shadow-sm">
-                        <h2 className="text-base font-semibold">Bookmarks</h2>
-                        <p className="mt-2">
-                            Itineraries you saved for later will appear here. (Coming soon)
-                        </p>
+                        {draftItineraries.length > 0 ? (
+                            <>
+                                <p className="mb-4 text-sm text-slate-500">
+                                    These trips are saved as drafts. Continue editing or discard them.
+                                </p>
+
+                                <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                    {draftItineraries.map((draft) => (
+                                        <li
+                                            key={draft.id}
+                                            className="flex flex-col rounded-md border border-slate-200 p-4"
+                                        >
+                                            <div className="mb-2 flex items-start justify-between">
+                                                <h3 className="text-base font-semibold text-slate-800 line-clamp-2">
+                                                    {draft.title || "Untitled itinerary"}
+                                                </h3>
+                                                <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  Draft
+                </span>
+                                            </div>
+
+                                            {draft.destination && (
+                                                <p className="mb-1 text-sm text-slate-500">
+                                                    {draft.destination}
+                                                </p>
+                                            )}
+
+                                            {draft.lastUpdatedAt && (
+                                                <p className="mb-3 text-xs text-slate-400">
+                                                    Last updated {new Date(draft.lastUpdatedAt).toLocaleDateString()}
+                                                </p>
+                                            )}
+
+                                            <div className="mt-auto flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleContinueDraft(draft.id)}
+                                                    className="flex-1 rounded-md bg-sky-600 text-white px-4 py-2 text-sm font-medium hover:bg-sky-700"
+                                                >
+                                                    Continue editing
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDiscardDraft(draft.id)}
+                                                    className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
+                                                >
+                                                    Discard
+                                                </button>
+
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-10 text-center">
+                                <p className="mb-2 text-sm font-semibold text-slate-600">
+                                    No draft itineraries yet
+                                </p>
+                                <p className="text-xs text-slate-400">
+                                    Start a new itinerary and choose “Save as draft” to see it here.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
+
 
 
                 {tab === "settings" && (
@@ -307,6 +465,36 @@ export default function ProfilePage() {
                 )}
 
             </section>
+
+            {
+                showWarningModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="bg-white max-w-md w-full mx-4 rounded-xl shadow-xl p-6 text-center">
+                            <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                                ⚠️ {showWarningModal.msgTitle}
+                            </h2>
+                            <p className="text-slate-600 mb-6" dangerouslySetInnerHTML={{__html:showWarningModal.msg}}>
+
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowWarningModal(null)}
+                                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
+                            >
+                                Yes
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowWarningModal(null)}
+                                className="inline-flex ml-11 items-center justify-center px-4 py-2 rounded-md bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
+                            >
+                                No
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
 
         </main>
     );

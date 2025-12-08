@@ -62,12 +62,21 @@ export default function RegisterPage() {
                 setOut({ success: "Registration successful ! Redirecting to login..." });
                 setTimeout(() => navigate("/login"), 5000);
             }).catch((err) => {
-            if (err.response.status === 409) {
-                setOut({ ok: false, message: "Email Already Registered" });
+
+            const status = err?.response?.status;
+            const dataMsg = err?.response?.data?.message || err?.response?.data?.error;
+            let message;
+
+            if (status === 409) {
+                message = "Email Already Registered";
+            } else if (status) {
+                message = dataMsg || `Request failed with status ${status}`;
+            } else {
+                message = "Network error. Please try again.";
             }
-            else{
-                setOut({ok: false, message: err.message?.data || err.message});
-            }
+
+            setOut({ ok: false, message });
+            console.error("register failed:", { status, data: err?.response?.data, err });
         });
     };
 
@@ -125,7 +134,7 @@ export default function RegisterPage() {
                         <div>
                             <label className="block mb-1">Email</label>
                             <input
-                                className="w-full border p-2"
+                                className="w-full border p-2 rounded-md"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -150,7 +159,7 @@ export default function RegisterPage() {
                             <label className="block mb-1">Password</label>
                             <div className="relative">
                                 <input
-                                    className="w-full border p-2 pr-10"  // pr-10 gives space for the eye button
+                                    className="w-full border p-2 pr-10 rounded-md"  // pr-10 gives space for the eye button
                                     type={showPwd ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -203,9 +212,9 @@ export default function RegisterPage() {
                         </div>
 
                         <div>
-                            <label className="block mb-1">Confirm Password</label>
+                            <label className="block mb-1 ">Confirm Password</label>
                             <input
-                                className="w-full border p-2"
+                                className="w-full border p-2 rounded-md"
                                 type="password"
                                 value={passwordConfirm}
                                 onChange={(e) => setPasswordConfirm(e.target.value)}
@@ -221,7 +230,7 @@ export default function RegisterPage() {
                         <div>
                             <label className="block mb-1">Display name</label>
                             <input
-                                className="w-full border p-2"
+                                className="w-full border p-2 rounded-md"
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
                                 onBlur={()=>setTouchedDisplayName(true)}

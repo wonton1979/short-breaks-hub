@@ -35,7 +35,6 @@ export default function LoginPage() {
             setOut({ ok: true, user: res.user });
             toast.success(`Welcome back, ${res?.displayName || 'traveler'} !`);
             navigate("/");
-            window.location.reload();
         }).catch((err) => {
             setOut(err.response?.data ? { error: "Incorrect Email Or Password" } : null);
         });
@@ -48,7 +47,7 @@ export default function LoginPage() {
                 <div>
                     <label className="block mb-1">Email</label>
                     <input
-                        className="w-full border p-2"
+                        className="w-full border p-2 rounded-md"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -58,14 +57,14 @@ export default function LoginPage() {
                 <div>
                     <label className="block mb-1">Password</label>
                     <input
-                        className="w-full border p-2"
+                        className="w-full border p-2 rounded-md"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
                 </div>
-                <button className="bg-black text-white px-4 py-2 rounded">Login</button>
+                <button className="bg-black text-white px-4 py-2 rounded cursor-pointer">Login</button>
             </form>
 
             <p className="mt-4 text-sm text-gray-600">
