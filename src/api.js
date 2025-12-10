@@ -156,6 +156,10 @@ export const postUpdateDraftCoverPhoto = (file,existingCoverUrl) =>{
         )
 }
 
+export const postContact = (details) =>
+    publicApi.post(`/contact`, details).then((res) => res.data);
+
+
 export const updateUser = (payload) =>
     api.put("/auth/me",payload )
     .then((res) =>  res.data || payload
@@ -186,7 +190,7 @@ api.interceptors.request.use((config) => {
     if (!token || isExpired(token)) {
         localStorage.removeItem("authToken");
         localStorage.setItem("auth:logout", String(Date.now()));
-        //window.location.replace("/login?reason=expired");
+        window.location.replace("/login?reason=expired");
         localStorage.setItem("auth:toast", "This operation is for user only,please log in first.");
         throw new axios.Cancel("token expired");
     }
@@ -204,7 +208,7 @@ api.interceptors.response.use(
             localStorage.setItem("auth:logout", String(Date.now()));
             if (location.pathname !== "/login") {
                 localStorage.setItem("auth:toast", "Unauthorized. Please log in first.");
-                //window.location.replace("/login?reason=unauthorized");
+                window.location.replace("/login?reason=unauthorized");
 
             }
         }
