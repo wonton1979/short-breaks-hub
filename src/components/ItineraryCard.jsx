@@ -3,9 +3,11 @@ import {getFavoritesCount} from "../api.js";
 import {useEffect, useState} from "react";
 import {loadSubFolderImages} from "../utils/loadImage.js";
 
-export default function ItineraryCard({it,showLikes=false,itineraryType="build in"}) {
+export default function ItineraryCard({it="",showLikes=false,itineraryType="build in"}) {
     const [favoritesCount, setFavoritesCount] = useState(0);
     const [navigateTo, setNavigateTo] = useState("");
+    console.log(it.hero)
+
     useEffect(() => {
         if(it){
             if(itineraryType === "build in")
@@ -21,6 +23,7 @@ export default function ItineraryCard({it,showLikes=false,itineraryType="build i
 
         }
 
+
     },[])
     return (
         <>
@@ -28,7 +31,7 @@ export default function ItineraryCard({it,showLikes=false,itineraryType="build i
                 <Link to={navigateTo} className="block">
                     <img
                         src={ itineraryType === "build in" ?
-                            loadSubFolderImages(it.hero.split("/")[3],it.hero.split("/")[4].split(".")[0]) :
+                            loadSubFolderImages(it.hero.split("/")[3] + "/"+it.hero.split("/")[4],it.hero.split("/")[5].split(".")[0]) :
                             it.coverPhoto
                     }
                         alt={it.title}

@@ -77,6 +77,9 @@ export const getMeSavedDraft = () =>
 export const getDraftByDraftId = (draftId) =>
     api.get(`/community-itineraries/draft/${draftId}`).then(res => res.data);
 
+export const getResendVerificationEmail = () =>
+    api.get('/auth/verify-email-request').then(res => res.data);
+
 
 
 export const postUserRegister = (email, password, displayName) =>
@@ -158,6 +161,12 @@ export const postUpdateDraftCoverPhoto = (file,existingCoverUrl) =>{
 
 export const postContact = (details) =>
     publicApi.post(`/contact`, details).then((res) => res.data);
+
+export const postRestPasswordEmail = (email) =>
+    publicApi.post(`/auth/request-password-reset`, {email:email}).then((res) => res.data);
+
+export const postRestPassword = (token,newPassword) =>
+    publicApi.post(`/auth/reset-password`, {token:token,newPassword:newPassword}).then((res) => res.data);
 
 
 export const updateUser = (payload) =>

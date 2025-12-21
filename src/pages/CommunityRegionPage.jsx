@@ -59,6 +59,7 @@ export default function CommunityRegionPage() {
                             name={country.name}
                             itineraries={country.itineraries}
                             image={country.image}
+                            itineraryType={"user-itinerary"}
                         />
                     ))}
                 </div>

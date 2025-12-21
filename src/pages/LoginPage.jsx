@@ -31,7 +31,7 @@ export default function LoginPage() {
         e.preventDefault();
         setOut(null);
         postUserLogin(email, password).then((res) => {
-            Auth.save(res.token);
+            Auth.save(res.token,res.emailVerified);
             setOut({ ok: true, user: res.user });
             toast.success(`Welcome back, ${res?.displayName || 'traveler'} !`);
             navigate("/");
@@ -65,6 +65,15 @@ export default function LoginPage() {
                     />
                 </div>
                 <button className="bg-black text-white px-4 py-2 rounded cursor-pointer">Login</button>
+                <p className="mt-3 text-sm text-gray-600">
+                    <Link
+                        to="/forgot-password"
+                        className="text-blue-600 hover:underline"
+                    >
+                        Forgot your password?
+                    </Link>
+                </p>
+
             </form>
 
             <p className="mt-4 text-sm text-gray-600">

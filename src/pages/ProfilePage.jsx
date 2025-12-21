@@ -19,7 +19,8 @@ export default function ProfilePage() {
         bio: "",
         adults: 1,
         children: 0,
-        avatarUrl: ""
+        avatarUrl: "",
+        currency:""
     });
     const [saving, setSaving] = useState(false);
     const [favorites, setFavorites] = useState([]);
@@ -39,6 +40,7 @@ export default function ProfilePage() {
             adults: m.adults || 1,
             children: m.children || 0,
             avatarUrl: m.avatarUrl || "",
+            currency: m.currency || "",
         });
     }, [out?.data]);
 
@@ -115,6 +117,27 @@ export default function ProfilePage() {
             "msg":"Are you sure you want to delete this draft ?"});
     }
 
+    function handleUpdateProfile() {
+        setSaving(true);
+        const payload = {
+            displayName: settings.displayName,
+            location: settings.location,
+            bio: settings.bio,
+            adults: settings.adults,
+            children: settings.children,
+            currency: settings.currency,
+        };
+        updateUser(payload).then((data) => {
+                setOut({ ...out, data: { ...(out?.data || {}), ...data} });
+                showToast('Profile Updated Successfully.');
+            }
+        ).catch((err) => {
+            showToast('Failed to save changes', { variant: 'error', duration: 3500 });
+        })
+            .finally(() => setSaving(false));
+    }
+
+
 
     if (out.loading) return <div className="p-4">Loading…</div>;
 
@@ -126,7 +149,7 @@ export default function ProfilePage() {
         );
     }
 
-    const me = out.data || {}; // { id, email, username, displayName, role, ... }
+    const me = out.data || {};
 
     return (
         <main className="mx-auto max-w-5xl px-4 py-8">
@@ -190,6 +213,9 @@ export default function ProfilePage() {
                             </div>
                             <div>
                                 <span className="font-medium">Bio:</span> {me.bio || "No bio yet"}
+                            </div>
+                            <div>
+                                <span className="font-medium">Currency:</span> {me.currency}
                             </div>
                         </div>
                     </div>
@@ -377,6 +403,30 @@ export default function ProfilePage() {
                                 />
                             </label>
 
+                            {/* Preferred Currency */}
+                            <label className="block">
+                                <span className="text-sm text-slate-700">Preferred Currency</span>
+                                <select
+                                    className="mt-1 w-full rounded border px-3 py-2 bg-white"
+                                    value={settings.currency || "USD"}
+                                    onChange={(e) =>
+                                        setSettings({
+                                            ...settings,
+                                            currency: e.target.value,
+                                        })
+                                    }
+                                >
+                                    <option value="USD">USD – US Dollar</option>
+                                    <option value="GBP">GBP – British Pound</option>
+                                    <option value="EUR">EUR – Euro</option>
+                                    <option value="AUD">AUD – Australian Dollar</option>
+                                    <option value="CAD">CAD – Canadian Dollar</option>
+                                    <option value="JPY">JPY – Japanese Yen</option>
+                                    <option value="SGD">SGD – Singapore Dollar</option>
+                                </select>
+                            </label>
+
+
                             {/* Bio */}
                             <label className="block">
                                 <span className="text-sm text-slate-700">Bio</span>
@@ -435,27 +485,8 @@ export default function ProfilePage() {
                             <div className="pt-2">
                                 <button
                                     disabled={saving}
-                                    className={`rounded px-3 py-2 text-white ${saving ? "bg-slate-400" : "bg-sky-600 hover:bg-sky-700"}`}
-                                    onClick={() => {
-                                        setSaving(true);
-                                        // shape your API expects; adjust field names if needed
-                                        const payload = {
-                                            displayName: settings.displayName,
-                                            location: settings.location,
-                                            bio: settings.bio,
-                                            adults: settings.adults,
-                                            children: settings.children,
-                                        };
-                                        updateUser(payload).then((data) => {
-                                            console.log(data);
-                                            setOut({ ...out, data: { ...(out?.data || {}), ...data} });
-                                            showToast('Profile Updated Successfully.');
-                                            }
-                                        ).catch((err) => {
-                                            showToast('Failed to save changes', { variant: 'error', duration: 3500 });
-                                        })
-                                        .finally(() => setSaving(false));
-                                    }}
+                                    className={`rounded cursor-pointer px-3 py-2 text-white ${saving ? "bg-slate-400" : "bg-sky-600 hover:bg-sky-700"}`}
+                                    onClick={handleUpdateProfile}
                                 >
                                     {saving ? "Saving…" : "Save changes"}
                                 </button>

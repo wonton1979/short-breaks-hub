@@ -13,7 +13,7 @@ function useQuery() {
 }
 
 export default function BrowsePage() {
-    const {country} = useParams();
+    let {country} = useParams();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState("");
@@ -31,16 +31,15 @@ export default function BrowsePage() {
         if (daysMax != null) params.set("daysMax", String(daysMax));
         params.set("page", String(page));
         params.set("size", "12");
-        params.set("country", country);
+        params.set("country", country.replace("-"," "));
         if (sort) params.set("sort", sort);
-        getAllItinerariesByCustomSearch(params.toString()).then((res) => setItems(res.content))
-            .catch((err) => console.log(err));
+        getAllItinerariesByCustomSearch(params.toString()).then((res) => {
+            setItems(res.content);
+        }).catch((err) => console.log(err));
     }
 
     function clearFilters() {
-        setQ("");
-        setDaysMin(null);
-        setDaysMax(null);
+        window.location.reload();
     }
 
     function onSubmit(e){
@@ -53,9 +52,15 @@ export default function BrowsePage() {
         let ignore = false;
         setLoading(true);
         setErr("");
+        if(country.includes("-")){
+            country = country.replace("-"," ");
+        }
 
         getItinerariesByCountry(country)
-            .then((data) => { if (!ignore) setItems(data); })
+            .then((data) => { if (!ignore) {
+                console.log(data)
+                setItems(data);
+            } })
             .catch((e) => { if (!ignore) setErr(e?.message || "Failed to load"); })
             .finally(() => { if (!ignore) setLoading(false); });
 

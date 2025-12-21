@@ -1,6 +1,10 @@
-import React, { useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import {showToast} from "../utils/toast.js";
-import {postComment as postCommentApi,getCommentList,getCommentMe,deleteComment as deleteCommentApi} from "../api.js"
+import {
+    postComment as postCommentApi, getCommentList, getCommentMe, deleteComment as deleteCommentApi,
+    getResendVerificationEmail
+} from "../api.js"
+import {Auth} from "../auth.js";
 
 export default function Comments({ itineraryId }) {
 
@@ -14,6 +18,8 @@ export default function Comments({ itineraryId }) {
     const [totalPages, setTotalPages] = React.useState(1);
     const [commentCount, setCommentCount] = React.useState(0);
     const [commentDeleted, setCommentDeleted] = React.useState(false);
+    const [showModal, setShowModal] = useState(null);
+    const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
 
     function loadComments(p = 0) {
         getCommentList(itineraryId).then((res) => {
@@ -38,6 +44,12 @@ export default function Comments({ itineraryId }) {
 
 
     function postComment() {
+
+        if(!Auth.isEmailVerified()){
+            setShowEmailVerificationModal(true);
+            return;
+        }
+
         if (!body.trim()) return;
         setSaving(true);
         postCommentApi(itineraryId, { body, rating: rating || null })
@@ -71,6 +83,37 @@ export default function Comments({ itineraryId }) {
             loadComments(0)
             showToast("Failed to delete comment", { variant: "error",duration:4000 });
         })
+    }
+
+    function handleEmailVerificationRequest(){
+        getResendVerificationEmail().then(() => {
+            setShowEmailVerificationModal(false);
+            setShowModal({
+                "msgTitle": "Email Verification Request",
+                "msg":"Verification email has been sent.please check your mail\n It may take couple of minutes.",
+                "icon": "success",
+            });
+        }).catch((err) => {
+            setShowEmailVerificationModal(false);
+
+            const status = err?.response?.status;
+
+            if (status === 429) {
+                setShowModal({
+                    msgTitle: "Please wait",
+                    msg: "You’ve recently requested a verification email. Try again in 1 minute.",
+                    icon: "warning",
+                });
+                return;
+            }
+
+            setShowModal({
+                msgTitle: "Email Verification Failed",
+                msg: err?.response?.data?.message || "Something went wrong. Please try again later.",
+                icon: "error",
+            });
+        });
+
     }
 
     return (
@@ -174,6 +217,65 @@ export default function Comments({ itineraryId }) {
                     Next
                 </button>
             </div>
+            {
+                showEmailVerificationModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="bg-white max-w-md w-full mx-4 rounded-xl shadow-xl p-6 text-center">
+                            <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                                ⚠️ Email Verification Required
+                            </h2>
+                            <p className="text-slate-600 mb-2">
+                                Please verify your email first.
+                            </p>
+                            <p className="text-slate-600 mb-6">
+                                You can request a new link if previous one is expired.
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowEmailVerificationModal(false);
+                                }}
+                                className="inline-flex items-center justify-center px-7 py-2 rounded-md bg-slate-900
+                                text-white text-sm font-medium hover:bg-slate-800"
+                            >
+                                Ok
+                            </button>
+                            <button
+                                type="button"
+                                onClick={()=> handleEmailVerificationRequest()}
+                                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-slate-900
+                                text-white text-sm font-medium hover:bg-slate-800 ml-5"
+                            >
+                                Request New Email Verification Link
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
+
+            {
+                showModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="bg-white max-w-md w-full mx-4 rounded-xl shadow-xl p-6 text-center">
+                            <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                                { showModal.icon === "success" ? `🟢 ${showModal.msgTitle}` : `⚠️ ${showModal.msgTitle}` }
+                            </h2>
+                            <p className="text-slate-600 mb-6" dangerouslySetInnerHTML={{__html:showModal.msg}}>
+
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowModal(null)}
+                                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
+                            >
+                                Ok
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
         </section>
     )
 }

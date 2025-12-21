@@ -2,10 +2,11 @@ import {useEffect, useState} from "react";
 import DayPlanTextArea from "./DayPlanTextArea.jsx";
 import {
     postUserItineraryPhoto, postUserItinerary, getUserDraftCount, postUserDraftItinerary, postDraftPhoto,
-    postUpdateDraftCoverPhoto, getDraftByDraftId, updateDraft, deleteDraft
+    postUpdateDraftCoverPhoto, getDraftByDraftId, updateDraft, deleteDraft,getResendVerificationEmail
 } from "../api.js";
 import axios from "axios";
 import {useNavigate, useSearchParams} from "react-router-dom";
+import {Auth} from "../auth.js";
 
 export default function CreateItineraryForm() {
 
@@ -24,7 +25,7 @@ export default function CreateItineraryForm() {
     const navigate = useNavigate();
     const [isSavingDraft, setIsSavingDraft] = useState(false);
     const [searchParams] = useSearchParams()
-    const [deleteConfirm, setDeleteConfirm] = useState(false);
+    const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
     const [itineraryContent, setItineraryContent] = useState({
         title: "",
         country: "",
@@ -81,6 +82,37 @@ export default function CreateItineraryForm() {
 
     }
 
+    function handleEmailVerificationRequest(){
+        getResendVerificationEmail().then(() => {
+            setShowEmailVerificationModal(false);
+            setShowModal({
+                "msgTitle": "Email Verification Request",
+                "msg":"Verification email has been sent.please check your mail\n It may take couple of minutes.",
+                "icon": "success",
+            });
+        }).catch((err) => {
+            setShowEmailVerificationModal(false);
+
+            const status = err?.response?.status;
+
+            if (status === 429) {
+                setShowModal({
+                    msgTitle: "Please wait",
+                    msg: "You’ve recently requested a verification email. Try again in 1 minute.",
+                    icon: "warning",
+                });
+                return;
+            }
+
+            setShowModal({
+                msgTitle: "Email Verification Failed",
+                msg: err?.response?.data?.message || "Something went wrong. Please try again later.",
+                icon: "error",
+            });
+        });
+
+    }
+
     function handleSaveDraft(){
 
         getUserDraftCount().then((res) => {
@@ -106,7 +138,7 @@ export default function CreateItineraryForm() {
                                 setShowSuccessDraftSaveModal(true);
                                 setDraftId(res.draftId);
                             })
-                        }).catch((err) => {
+                        }).catch(() => {
                             setShowModal({"msgTitle": "Save Failed", "msg":"Something went wrong. Please try again."});
                         }).finally(() => {
                             setIsSavingDraft(false);
@@ -116,7 +148,7 @@ export default function CreateItineraryForm() {
                         postUserDraftItinerary(payload).then((res) => {
                             setShowSuccessDraftSaveModal(true);
                             setDraftId(res.draftId);
-                        }).catch((err) => {
+                        }).catch(() => {
                             setShowModal({"msgTitle": "Save Failed", "msg":"Something went wrong. Please try again."});
                         }).finally(() => {
                             setIsSavingDraft(false);
@@ -126,14 +158,14 @@ export default function CreateItineraryForm() {
                 else{
                     setIsSavingDraft(true);
                     if(previewUrl !== itineraryContent.coverPhoto && file){
-                        postUpdateDraftCoverPhoto(file,itineraryContent.coverPhoto).then((res) => {
-                            updateDraft(draftId,payload).then((res) => {
+                        postUpdateDraftCoverPhoto(file,itineraryContent.coverPhoto).then(() => {
+                            updateDraft(draftId,payload).then(() => {
                                 setShowModal({"msgTitle": "Draft Update", "msg":"Draft Updated Successfully."});
                             });
                         }).finally(() => {setIsSavingDraft(false);})
                     }
                     else {
-                        updateDraft(draftId,payload).then((res) => {
+                        updateDraft(draftId,payload).then(() => {
                             setShowModal({"msgTitle": "Draft Update", "msg":"Draft Updated Successfully."});
                         }).finally(() => {setIsSavingDraft(false);});
                     }
@@ -143,6 +175,11 @@ export default function CreateItineraryForm() {
     }
 
     function handleSubmitItinerary() {
+        if(!Auth.isEmailVerified()){
+            setShowEmailVerificationModal(true);
+            return;
+        }
+
 
         setSubmitted(true);
 
@@ -172,7 +209,7 @@ export default function CreateItineraryForm() {
                itineraryContent.coverPhoto = res;
                const plan = dayPlan.map((eachDayPlan,index) =>({...eachDayPlan, day: index + 1}));
                const payload = {...itineraryContent,region: itineraryContent.region.toUpperCase(),userDayPlan:plan};
-               postUserItinerary(payload).then((res) => {
+               postUserItinerary(payload).then(() => {
                    setCountdown(5);
                    setShowSuccessModal(true);
                    }
@@ -181,14 +218,16 @@ export default function CreateItineraryForm() {
             .catch((err) => console.error("Upload failed:", err));
 
         if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
+            if(typeof previewUrl === "string"){
+                URL.revokeObjectURL(previewUrl);
+            }
             setPreviewUrl(null);
         }
     }
 
     function handleDeleteDraft() {
         setShowConfirmationModal(false);
-        deleteDraft(draftId).then((res) => {
+        deleteDraft(draftId).then(() => {
             setShowModal({"msgTitle": "Draft Delete", "msg":"Draft Delete Successfully."});
 
         }).finally(() => {
@@ -393,7 +432,7 @@ export default function CreateItineraryForm() {
                         <h2 className="text-base font-medium mb-4">Cover photo</h2>
                         <div className="flex items-start gap-4">
                             {
-                                previewUrl ? (
+                                typeof(previewUrl) === "string" ? (
                                     <div className="h-28 w-44 bg-slate-100 rounded-md border border-dashed border-slate-300 flex items-center justify-center overflow-hidden"
                                          data-preview="hero">
                                         <img src={previewUrl} alt="itinerary photo preview" className="object-cover object-center w-full h-full" />
@@ -556,7 +595,7 @@ export default function CreateItineraryForm() {
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
                         <div className="bg-white max-w-md w-full mx-4 rounded-xl shadow-xl p-6 text-center">
                             <h2 className="text-xl font-semibold text-slate-900 mb-2">
-                                ⚠️ {showModal.msgTitle}
+                                { showModal.icon === "success" ? `🟢 ${showModal.msgTitle}` : `⚠️ ${showModal.msgTitle}` }
                             </h2>
                             <p className="text-slate-600 mb-6" dangerouslySetInnerHTML={{__html:showModal.msg}}>
 
@@ -602,6 +641,42 @@ export default function CreateItineraryForm() {
                                 text-white text-sm font-medium hover:bg-slate-800 ml-5"
                             >
                                 Cancel
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                showEmailVerificationModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="bg-white max-w-md w-full mx-4 rounded-xl shadow-xl p-6 text-center">
+                            <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                                ⚠️ Email Verification Required
+                            </h2>
+                            <p className="text-slate-600 mb-2">
+                                Please verify your email first.
+                            </p>
+                            <p className="text-slate-600 mb-6">
+                                You can request a new link if previous one is expired.
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowEmailVerificationModal(false);
+                                }}
+                                className="inline-flex items-center justify-center px-7 py-2 rounded-md bg-slate-900
+                                text-white text-sm font-medium hover:bg-slate-800"
+                            >
+                                Ok
+                            </button>
+                            <button
+                                type="button"
+                                onClick={()=> handleEmailVerificationRequest()}
+                                className="inline-flex items-center justify-center px-4 py-2 rounded-md bg-slate-900
+                                text-white text-sm font-medium hover:bg-slate-800 ml-5"
+                            >
+                                Request New Email Verification Link
                             </button>
                         </div>
                     </div>

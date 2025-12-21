@@ -28,36 +28,42 @@ function HomePage() {
             description: "Tropical beaches, vibrant cities, and legendary street food.",
             image: southeastImg,
             onClick: "southeast-asia",
+            bannerName: "southeast-asia-banner",
         },
         {
             title: "East Asia",
             description: "Ancient temples, neon skylines, and rich traditions.",
             image: eastAsiaImg,
             onClick: "east-asia",
+            bannerName: "east-asia-banner",
         },
         {
             title: "Europe",
             description: "Iconic landmarks, café culture, and timeless elegance.",
             image: europeImg,
             onClick: "europe",
+            bannerName: "europe-banner",
         },
         {
             title: "Americas",
             description: "From NYC weekends to Andean escapes—urban buzz & wild nature.",
             image: americasImg,
             onClick: "americas",
+            bannerName: "americas-banner",
         },
         {
             title: "Australia & New Zealand",
             description: "Coastal road trips, wine regions, and epic alpine scenery.",
             image: anzImg,
-            onClick: "anz",
+            onClick: "australia-new-zealand",
+            bannerName: "anzalia-nz-banner",
         },
         {
-            title: "North Africa",
+            title: "Africa",
             description: "Souks, desert dunes, and Mediterranean old towns.",
             image: northAfricaImg,
-            onClick: "north-africa",
+            onClick: "africa",
+            bannerName: "africa-banner"
         },
     ];
 

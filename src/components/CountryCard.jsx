@@ -2,14 +2,14 @@ import React from 'react';
 import {useNavigate} from "react-router-dom";
 
 
-export default function CountryCard({ name, itineraries, image }) {
+export default function CountryCard({ name, itineraries, image, itineraryType }) {
     const navigate = useNavigate();
     const formatSlug = (slug) =>
         slug
             .replace(/-/g, " ")
             .replace(/\b\w/g, (ch) => ch.toUpperCase());
 
-    const previewList = itineraries.slice(0, 6);
+    const previewList = itineraries.slice(0, 4);
 
 
     return (
@@ -38,11 +38,11 @@ export default function CountryCard({ name, itineraries, image }) {
                     {previewList.map((slug) => (
                         <button
                             key={slug}
-                            onClick={() => navigate(`/user-itinerary/${slug}`)}
+                            onClick={() => navigate(`/${itineraryType}/${slug}`)}
                             className="text-left text-sm border border-gray-200 rounded-lg px-3 py-2
                          bg-gray-50 hover:bg-white hover:border-blue-400
                          shadow-sm hover:shadow-md transition
-                         focus:outline-none focus:ring-2 focus:ring-blue-400"
+                         focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer"
                         >
                             {formatSlug(slug)}
                         </button>
@@ -50,10 +50,10 @@ export default function CountryCard({ name, itineraries, image }) {
                 </div>
 
                 <button
-                    onClick={() => navigate(`/country/${countrySlug}`)}
-                    className="text-sm text-blue-600 underline mt-5"
+                    onClick={() => navigate(`/browse/${name}`)}
+                    className="text-sm text-blue-600 underline mt-5 cursor-pointer"
                 >
-                    View all itineraries →
+                    View All Itineraries →
                 </button>
 
             </div>

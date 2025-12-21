@@ -1,9 +1,11 @@
 export const Auth = {
-    save(token) {
+    save(token,emailVerified) {
         localStorage.setItem("authToken", token);
+        localStorage.setItem("emailVerified", emailVerified);
     },
     clear() {
         localStorage.removeItem("authToken");
+        localStorage.removeItem("emailVerified");
     },
     token() {
         return localStorage.getItem("authToken");
@@ -11,4 +13,7 @@ export const Auth = {
     isLoggedIn() {
         return !!localStorage.getItem("authToken");
     },
+    isEmailVerified() {
+        return localStorage.getItem("emailVerified") === "true";
+    }
 };
