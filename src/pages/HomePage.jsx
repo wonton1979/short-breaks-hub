@@ -52,10 +52,10 @@ function HomePage() {
             bannerName: "americas-banner",
         },
         {
-            title: "Australia & New Zealand",
+            title: "Oceania",
             description: "Coastal road trips, wine regions, and epic alpine scenery.",
             image: anzImg,
-            onClick: "australia-new-zealand",
+            onClick: "Oceania",
             bannerName: "anzalia-nz-banner",
         },
         {

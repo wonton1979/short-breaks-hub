@@ -11,6 +11,8 @@ import {showToast} from "../utils/toast.js";
 import CommentsSection from "../components/Comments";
 import {loadSubFolderImages} from "../utils/loadImage.js";
 import {isExpired} from "../utils/jwtParser.js";
+import getCurrencyCode from "../utils/countryToCurrency.js";
+import axios from "axios";
 
 
 export default function ItineraryPage() {
@@ -18,6 +20,7 @@ export default function ItineraryPage() {
     const navigate = useNavigate();
     const [data,setData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [userCurrency, setUserCurrency] = useState("USD");
     const [likes, setLikes] = React.useState({
         liked: false,
         count: 0,
@@ -63,6 +66,18 @@ export default function ItineraryPage() {
 
     }
 
+    function unslug(s) {
+        return s.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+    }
+
+    const [fromAmount, setFromAmount] = useState("100");
+    const rate = 1.17;
+
+    const convertedAmount = useMemo(() => {
+        const value = parseFloat(fromAmount);
+        if (Number.isNaN(value)) return "0";
+        return (value * rate).toFixed(0);
+    }, [fromAmount, rate]);
 
     const today = new Date();
     const defaultIn = new Date(today);
@@ -103,9 +118,15 @@ export default function ItineraryPage() {
                 setLoading(false);
             }
         );
+
+        axios.get(`https://v6.exchangerate-api.com/v6/${import.meta.env.VITE_EXCHANGERATE_API_KEY}/latest/${userCurrency}`).then(
+
+        )
+
+
     }, [slug]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (!data?.id) return
 
         getFavoritesCount(data.id).then(({count}) => {
@@ -254,7 +275,7 @@ export default function ItineraryPage() {
                                     <input
                                         type="date"
                                         value={checkOut}
-                                        min={checkIn}                  // can't pick before check‑in
+                                        min={checkIn}
                                         onChange={(e) => setCheckOut(e.target.value)}
                                         className="mt-1 w-full border rounded px-2 py-1"
                                     />
@@ -266,6 +287,56 @@ export default function ItineraryPage() {
                             </p>
 
                             <hr className="my-4" />
+                            <section>
+                                <h4 className="text-sm font-semibold text-gray-800 mb-1">
+                                    Local Currency Rate
+                                </h4>
+                                <p className="text-xs text-gray-500 mb-3">
+                                    The approximate amount for the default or preferred currency selected
+                                </p>
+
+                                <div className="space-y-3">
+                                    <label className="block text-xs text-gray-500">
+                                        From ( {getCurrencyCode(unslug(data.region), data.country)["Base Code"]} )
+                                        <div className="mt-1 flex items-center gap-2">
+                                            <span className="text-sm text-gray-500">{getCurrencyCode(unslug(data.region), data.country)["Symbol"]}</span>
+                                            <input
+                                                type="number"
+                                                min={0}
+                                                disabled
+                                                value={fromAmount}
+                                                onChange={(e) => setFromAmount(e.target.value)}
+                                                className="w-full border rounded px-2 py-1 text-sm"
+                                            />
+                                        </div>
+                                    </label>
+
+
+                                    <label className="block text-xs text-gray-500">
+                                        To ({userCurrency})
+                                        <div className="mt-1 flex items-center gap-2">
+                                            <span className="text-sm text-gray-500">$</span>
+                                            <input
+                                                type="text"
+                                                value={convertedAmount}
+                                                readOnly
+                                                className="w-full border rounded px-2 py-1 text-sm bg-gray-50"
+                                            />
+                                        </div>
+                                    </label>
+
+                                    <p className="text-[11px] text-gray-400">
+                                        Using rate: 1 GBP ≈ {rate.toFixed(2)} EUR
+                                    </p>
+
+                                    <button
+                                        type="button"
+                                        className="mt-2 w-full text-xs font-medium border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition"
+                                    >
+                                        Open full converter
+                                    </button>
+                                </div>
+                            </section>
                         </div>
                         <div className="mt-4">
                             <StayOptions city={city || data.country}

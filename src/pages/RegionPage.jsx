@@ -19,6 +19,7 @@ function RegionPage() {
 
 
     useEffect(() => {
+        console.log(region);
         setBannerImage(loadImages(`${region}-banner`));
         getCountriesByRegion(region).then(
             (country_list) => {
@@ -46,9 +47,6 @@ function RegionPage() {
         );
     },[region]);
 
-    useEffect(() => {
-        console.log(countries)
-    }, [countries]);
 
 
     return (

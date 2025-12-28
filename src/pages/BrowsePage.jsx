@@ -58,7 +58,6 @@ export default function BrowsePage() {
 
         getItinerariesByCountry(country)
             .then((data) => { if (!ignore) {
-                console.log(data)
                 setItems(data);
             } })
             .catch((e) => { if (!ignore) setErr(e?.message || "Failed to load"); })

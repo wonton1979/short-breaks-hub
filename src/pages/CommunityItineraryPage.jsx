@@ -164,7 +164,7 @@ export default function CommunityItineraryPage() {
 
 
     const [fromAmount, setFromAmount] = useState("100");
-    const rate = 1.17; // TODO: replace with real API value
+    const rate = 1.17;
 
     const convertedAmount = useMemo(() => {
         const value = parseFloat(fromAmount);

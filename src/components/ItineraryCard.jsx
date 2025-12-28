@@ -6,7 +6,6 @@ import {loadSubFolderImages} from "../utils/loadImage.js";
 export default function ItineraryCard({it="",showLikes=false,itineraryType="build in"}) {
     const [favoritesCount, setFavoritesCount] = useState(0);
     const [navigateTo, setNavigateTo] = useState("");
-    console.log(it.hero)
 
     useEffect(() => {
         if(it){
@@ -22,8 +21,6 @@ export default function ItineraryCard({it="",showLikes=false,itineraryType="buil
             }
 
         }
-
-
     },[])
     return (
         <>
