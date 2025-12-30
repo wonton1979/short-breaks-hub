@@ -45,6 +45,16 @@ export default function Comments({ itineraryId }) {
 
     function postComment() {
 
+        if(!localStorage.getItem("authToken"))
+        {
+            setShowModal({
+                "msgTitle": "User Login Required",
+                "msg":"Please log in before make a comment",
+                "icon": "error",
+            });
+            return;
+        }
+
         if(!Auth.isEmailVerified()){
             setShowEmailVerificationModal(true);
             return;

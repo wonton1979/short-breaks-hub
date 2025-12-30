@@ -110,39 +110,43 @@ export default function Navbar() {
                     )}
                 </ul>
 
-                <button className="md:hidden border rounded px-2 py-1 cursor-pointer" onClick={() => setOpen(v => !v)}>
-                    ☰
+                <button
+                    className="md:hidden absolute right-4 top-3 p-2 rounded-md hover:bg-gray-100"
+                    onClick={() => setOpen(v => !v)}
+                >
+                    {open ? '✕' : '☰'}
                 </button>
+
             </nav>
 
             {open && (
-                <div className="md:hidden border-t bg-white">
-                    {links.map((l) => (
+                <div className="md:hidden fixed top-14 left-0 w-full bg-white border-t z-40">
+
+                    {Auth.isLoggedIn() && (
+                        <button
+                            onClick={() => {
+                                setOpen(false);
+                                navigate('/profile');
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-4 border-b text-gray-800 font-medium cursor-pointer"
+                        >
+                            <FaUserCircle size={24} />
+                            Profile
+                        </button>
+                    )}
+
+                    {links.map(l => (
                         <button
                             key={l.label}
                             onClick={() => go(l)}
-                            className={`inline-block text-left py-3 text-gray-700 text-sm font-medium cursor-pointer 
-                                ${
-                                l.type === 'route' &&
-                                ((l.id === '/' && location.pathname === '/') ||
-                                    (l.id !== '/' && location.pathname.startsWith(l.id)))
-                                    ? 'text-blue-600 border-b-[2px] border-blue-600 pb-1'
-                                    : ''
-
-                            } ${
-                                l.type === 'scroll' && location.pathname === '/' && activeScroll === l.id
-                                    ? 'text-blue-600 border-b-[2px] border-blue-600 pb-1'
-                                    : l.type === 'scroll'
-                                        ? 'text-gray-700 hover:text-gray-900'
-                                        : ''
-                            }                              
-                                        `}
+                            className="w-full text-left px-4 py-4 text-gray-700 hover:bg-gray-100"
                         >
                             {l.label}
                         </button>
                     ))}
                 </div>
             )}
+
         </header>
     );
 }

@@ -3,7 +3,7 @@ import ItineraryDayAccordion from "../components/ItineraryDayAccordion";
 import React, {useState, useMemo, useEffect} from "react";
 import StayOptions from "../components/StayOptions";
 import { staysByCity } from "../data/stays";
-import {getItineraryBySlug,getFavoritesCount,getFavoritesMe,postFavorite,deleteFavorite} from "../api.js";
+import {getItineraryBySlug, getFavoritesCount, getFavoritesMe, postFavorite, deleteFavorite, getMe} from "../api.js";
 import {Helmet} from "react-helmet-async";
 import Lottie from "lottie-react";
 import LoadingAnimation from "../assets/Loading-Animation.json";
@@ -21,6 +21,9 @@ export default function ItineraryPage() {
     const [data,setData] = useState({});
     const [loading, setLoading] = useState(true);
     const [userCurrency, setUserCurrency] = useState("USD");
+    const [userCurrencyValue, setUserCurrencyValue] = useState(0);
+    const [convertRate, setConvertRate] = useState(1);
+    const [fromAmount, setFromAmount] = useState("100");
     const [likes, setLikes] = React.useState({
         liked: false,
         count: 0,
@@ -70,14 +73,7 @@ export default function ItineraryPage() {
         return s.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
     }
 
-    const [fromAmount, setFromAmount] = useState("100");
-    const rate = 1.17;
 
-    const convertedAmount = useMemo(() => {
-        const value = parseFloat(fromAmount);
-        if (Number.isNaN(value)) return "0";
-        return (value * rate).toFixed(0);
-    }, [fromAmount, rate]);
 
     const today = new Date();
     const defaultIn = new Date(today);
@@ -116,13 +112,24 @@ export default function ItineraryPage() {
                 );
                 setData(data);
                 setLoading(false);
+                axios.get(`https://v6.exchangerate-api.com/v6/${import.meta.env.VITE_EXCHANGERATE_API_KEY}/latest/${getCurrencyCode(unslug(data.region), data.country)["Base Code"]}`).then(
+                    (res) => {
+                        const token = localStorage.getItem("authToken");
+                        if (token) {
+                            getMe().then((data) => {
+                                if (data.currency) {
+                                    setUserCurrency(data.currency);
+                                }
+                                setConvertRate(res.data.conversion_rates[userCurrency]);
+                            })
+                        }
+                        else {
+                            setConvertRate(res.data.conversion_rates["USD"]);
+                        }
+                    }
+                )
             }
         );
-
-        axios.get(`https://v6.exchangerate-api.com/v6/${import.meta.env.VITE_EXCHANGERATE_API_KEY}/latest/${userCurrency}`).then(
-
-        )
-
 
     }, [slug]);
 
@@ -146,6 +153,11 @@ export default function ItineraryPage() {
         ).catch(err => console.log(err));
 
     }, [data?.id]);
+
+    useEffect(() => {
+        if(!convertRate) return;
+        setUserCurrencyValue((convertRate * 100).toFixed(2));
+    },[convertRate])
 
 
     if (loading) {
@@ -297,9 +309,8 @@ export default function ItineraryPage() {
 
                                 <div className="space-y-3">
                                     <label className="block text-xs text-gray-500">
-                                        From ( {getCurrencyCode(unslug(data.region), data.country)["Base Code"]} )
+                                        From ({getCurrencyCode(unslug(data.region), data.country)["Base Code"]})
                                         <div className="mt-1 flex items-center gap-2">
-                                            <span className="text-sm text-gray-500">{getCurrencyCode(unslug(data.region), data.country)["Symbol"]}</span>
                                             <input
                                                 type="number"
                                                 min={0}
@@ -315,26 +326,19 @@ export default function ItineraryPage() {
                                     <label className="block text-xs text-gray-500">
                                         To ({userCurrency})
                                         <div className="mt-1 flex items-center gap-2">
-                                            <span className="text-sm text-gray-500">$</span>
                                             <input
                                                 type="text"
-                                                value={convertedAmount}
+                                                value={userCurrencyValue}
                                                 readOnly
                                                 className="w-full border rounded px-2 py-1 text-sm bg-gray-50"
+                                                disabled
                                             />
                                         </div>
                                     </label>
 
                                     <p className="text-[11px] text-gray-400">
-                                        Using rate: 1 GBP ≈ {rate.toFixed(2)} EUR
+                                        Using rate: 1 {getCurrencyCode(unslug(data.region), data.country)["Base Code"]} ≈ {convertRate} {userCurrency}
                                     </p>
-
-                                    <button
-                                        type="button"
-                                        className="mt-2 w-full text-xs font-medium border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition"
-                                    >
-                                        Open full converter
-                                    </button>
                                 </div>
                             </section>
                         </div>

@@ -171,8 +171,8 @@ export default function ProfilePage() {
             </section>
             {/* Tabs */}
             <nav className="mt-6 border-b">
-                <div className="mb-px flex items-center justify-between">
-                    <div className="-mb-2.5 flex gap-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex gap-3 md:gap-6 overflow-x-auto whitespace-nowrap pb-1 -mb-2.5">
                         <button className={tabClass("overview")}  onClick={() => setTab("overview")}>Overview</button>
                         <button className={tabClass("favorites")} onClick={() => setTab("favorites")}>Favorites</button>
                         <button className={tabClass("Published Itineraries")} onClick={() => setTab("Published Itineraries")}>Published Itineraries</button>
@@ -181,9 +181,7 @@ export default function ProfilePage() {
                     </div>
                     <button
                         onClick={() => navigate("/create-itinerary")}
-                        className="inline-flex items-center rounded-sm bg-sky-600 px-3 py-1.5 text-sm
-                                     font-semibold text-white shadow-sm hover:bg-sky-700 mb-2
-                                     focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
+                        className="w-full sm:w-auto inline-flex items-center justify-center rounded-sm bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700"
                     >
                         + Create Itinerary
                     </button>
@@ -274,13 +272,22 @@ export default function ProfilePage() {
 
                 {tab === "Published Itineraries" && (
                     <div className="rounded-lg border bg-white p-6 text-slate-700 shadow-sm">
-                        <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
                             { userItineraries.length > 0 ?
                                     userItineraries.map((it,index) => (
-                                        <ItineraryCard key={index} it={it} itineraryType="user" />
-                                    )):null
+                                        <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                            <ItineraryCard key={index} it={it} itineraryType="user" />
+                                        </ul>
+                                    )):(<div className="flex flex-col items-center justify-center py-10 text-center">
+                                    <p className="mb-2 text-sm font-semibold text-slate-600">
+                                        No Published Itineraries Yet
+                                    </p>
+                                    <p className="text-xs text-slate-400">
+                                        Click the “Create Itinerary” and publish your first itinerary
+                                    </p>
+                                </div>)
                             }
-                        </ul>
+
                     </div>
                 )}
 
