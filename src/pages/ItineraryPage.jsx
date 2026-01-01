@@ -13,6 +13,7 @@ import {loadSubFolderImages} from "../utils/loadImage.js";
 import {isExpired} from "../utils/jwtParser.js";
 import getCurrencyCode from "../utils/countryToCurrency.js";
 import axios from "axios";
+import TravelPlanningSnapshot from "../components/TravelPlanningSnapshot";
 
 
 export default function ItineraryPage() {
@@ -30,6 +31,7 @@ export default function ItineraryPage() {
         saving: false,
     });
 
+    const [planning, setPlanning] = useState(null)
 
     function toLocalISO(d) {
         const t = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
@@ -111,6 +113,20 @@ export default function ItineraryPage() {
                     `${data.country} • ${data.days} days from $${data.priceFrom}`
                 );
                 setData(data);
+                console.log(data)
+                setPlanning({
+                    city: data.planningCity,
+                    bestTime: {
+                        months: data.bestTimeMonths,
+                        note: data.bestTimeNote
+                    },
+                    worstTime: {
+                        months: data.worstTimeMonths,
+                        note: data.worstTimeNote
+                    },
+                    tips: data.tips,
+                    withKids: data.withKids
+                })
                 setLoading(false);
                 axios.get(`https://v6.exchangerate-api.com/v6/${import.meta.env.VITE_EXCHANGERATE_API_KEY}/latest/${getCurrencyCode(unslug(data.region), data.country)["Base Code"]}`).then(
                     (res) => {
@@ -185,6 +201,8 @@ export default function ItineraryPage() {
     const city = data.city;
     const stayOptions = city ? (staysByCity[city] || []) : [];
 
+
+
     return (
         <>
             <Helmet>
@@ -246,9 +264,17 @@ export default function ItineraryPage() {
                             <span className="text-xs text-slate-500 mb-3">People who liked this</span>
                         </div>
 
+
                         <ul className="list-disc pl-6 text-gray-700 space-y-1">
                             {data.highlights?.map((h) => <li key={h}>{h}</li>)}
                         </ul>
+
+                        {
+                            planning && <div className="mt-6 pt-4 border-t border-slate-200">
+                            <TravelPlanningSnapshot data={planning} defaultOpen={false} />
+                        </div>
+                        }
+
 
                         {/* Overview */}
                         <h2 className="text-xl font-bold mt-8 mb-3">Overview</h2>
