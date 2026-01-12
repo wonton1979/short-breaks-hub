@@ -23,7 +23,7 @@ export default function Footer() {
                     <div>
                         <h3 className="text-md font-semibold text-white mb-4">Quick Links</h3>
                         <ul className="space-y-2">
-                            <li><a href="/" className="hover:text-yellow-300">Home</a></li>
+                            <li><a href="/public" className="hover:text-yellow-300">Home</a></li>
                             <li><a href="/southeast-asia" className="hover:text-yellow-300">Southeast Asia</a></li>
                             <li><a href="#" className="hover:text-yellow-300">Europe</a></li>
                             <li><a href="/contact" className="hover:text-yellow-300">Contact</a></li>

@@ -1,6 +1,6 @@
-export default function WeatherHeader({currentWeatherData,isCelsius, handleBackToCurrentWeather,isFutureDateSelected,setIsCelsius}) {
+export default function Header({currentWeatherData,isCelsius,setIsCelsius,handleBackToCurrentWeather,isFutureDateSelected}) {
     return (
-        <header className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+        <header className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
             <div className="min-w-0">
                 <h2 className="text-lg font-semibold text-slate-800 truncate">
                     {currentWeatherData?.region && (
@@ -10,6 +10,7 @@ export default function WeatherHeader({currentWeatherData,isCelsius, handleBackT
                 )}
                 </h2>
             </div>
+
             {isFutureDateSelected && (
                 <button
                     onClick={handleBackToCurrentWeather}
@@ -19,6 +20,7 @@ export default function WeatherHeader({currentWeatherData,isCelsius, handleBackT
                     ⟳ Live
                 </button>
             )}
+
             <div className="inline-flex rounded-lg border border-slate-500 overflow-hidden">
                 <button
                     type="button"

@@ -1,6 +1,6 @@
 import React, { useId, useState } from "react";
 
-export default function TravelPlanningSnapshot({ data, defaultOpen = false }) {
+export default function TravelTips({ data, defaultOpen = false }) {
     const [open, setOpen] = useState(defaultOpen);
     const contentId = useId();
 
@@ -16,9 +16,9 @@ export default function TravelPlanningSnapshot({ data, defaultOpen = false }) {
             >
                 <div>
                     <h3 className="text-sm font-bold tracking-tight text-slate-900">
-                        Travel Planning Snapshot
+                        Travel Tips
                     </h3>
-                    <p className="text-xs text-slate-500">{data.city}</p>
+                    <p className="text-xs text-slate-500">Practical advice to help you navigate the city</p>
                 </div>
 
                 {/* Big + / - */}

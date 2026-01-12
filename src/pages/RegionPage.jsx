@@ -19,7 +19,6 @@ function RegionPage() {
 
 
     useEffect(() => {
-        console.log(region);
         setBannerImage(loadImages(`${region}-banner`));
         getCountriesByRegion(region).then(
             (country_list) => {

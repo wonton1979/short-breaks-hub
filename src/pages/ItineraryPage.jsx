@@ -13,7 +13,10 @@ import {loadSubFolderImages} from "../utils/loadImage.js";
 import {isExpired} from "../utils/jwtParser.js";
 import getCurrencyCode from "../utils/countryToCurrency.js";
 import axios from "axios";
-import TravelPlanningSnapshot from "../components/TravelPlanningSnapshot";
+import TravelTips from "../components/TravelTips.jsx";
+import FoodRecommendations from "../components/FoodRecommendations";
+import TransportTips from "../components/TransportTips.jsx"
+import CurrencyConvertor from "../components/CurrencyConvertor";
 
 
 export default function ItineraryPage() {
@@ -32,6 +35,7 @@ export default function ItineraryPage() {
     });
 
     const [planning, setPlanning] = useState(null)
+    const [transport, setTransport] = useState(null)
 
     function toLocalISO(d) {
         const t = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
@@ -113,7 +117,7 @@ export default function ItineraryPage() {
                     `${data.country} • ${data.days} days from $${data.priceFrom}`
                 );
                 setData(data);
-                console.log(data)
+                console.log(data);
                 setPlanning({
                     city: data.planningCity,
                     bestTime: {
@@ -126,6 +130,13 @@ export default function ItineraryPage() {
                     },
                     tips: data.tips,
                     withKids: data.withKids
+                })
+                setTransport({
+                    arrival: data.arrival,
+                    gettingAround: data.gettingAround,
+                    dayTrips: data.dayTrips,
+                    dayMoves: data.dayMoves,
+                    practical: data.practical
                 })
                 setLoading(false);
                 axios.get(`https://v6.exchangerate-api.com/v6/${import.meta.env.VITE_EXCHANGERATE_API_KEY}/latest/${getCurrencyCode(unslug(data.region), data.country)["Base Code"]}`).then(
@@ -270,10 +281,28 @@ export default function ItineraryPage() {
                         </ul>
 
                         {
-                            planning && <div className="mt-6 pt-4 border-t border-slate-200">
-                            <TravelPlanningSnapshot data={planning} defaultOpen={false} />
+                            planning && <div className="mt-3 pt-4 border-t border-slate-300">
+                            <TravelTips data={planning} defaultOpen={false} />
                         </div>
                         }
+
+                        <div className="mt-3">
+                            <TransportTips data={transport} defaultOpen={false} />
+                        </div>
+
+                        <div className="mt-3">
+                            <CurrencyConvertor defaultOpen={false}
+                                               data={data}
+                                               fromAmount = {fromAmount}
+                                               userCurrency = {userCurrency}
+                                               userCurrencyValue = {userCurrencyValue}
+                                               convertRate = {convertRate}
+                            />
+                        </div>
+
+                        <div className="mt-3 pb-4 border-b border-slate-300">
+                            <FoodRecommendations defaultOpen={false} />
+                        </div>
 
 
                         {/* Overview */}
@@ -325,57 +354,18 @@ export default function ItineraryPage() {
                             </p>
 
                             <hr className="my-4" />
-                            <section>
-                                <h4 className="text-sm font-semibold text-gray-800 mb-1">
-                                    Local Currency Rate
-                                </h4>
-                                <p className="text-xs text-gray-500 mb-3">
-                                    The approximate amount for the default or preferred currency selected
-                                </p>
 
-                                <div className="space-y-3">
-                                    <label className="block text-xs text-gray-500">
-                                        From ({getCurrencyCode(unslug(data.region), data.country)["Base Code"]})
-                                        <div className="mt-1 flex items-center gap-2">
-                                            <input
-                                                type="number"
-                                                min={0}
-                                                disabled
-                                                value={fromAmount}
-                                                onChange={(e) => setFromAmount(e.target.value)}
-                                                className="w-full border rounded px-2 py-1 text-sm"
-                                            />
-                                        </div>
-                                    </label>
+                            <div className="mt-4">
+                                <StayOptions city={city || data.country}
+                                             options={stayOptions}
+                                             checkIn={checkIn}
+                                             checkOut={checkOut}
+                                             nights={nights}
+                                />
+                            </div>
 
-
-                                    <label className="block text-xs text-gray-500">
-                                        To ({userCurrency})
-                                        <div className="mt-1 flex items-center gap-2">
-                                            <input
-                                                type="text"
-                                                value={userCurrencyValue}
-                                                readOnly
-                                                className="w-full border rounded px-2 py-1 text-sm bg-gray-50"
-                                                disabled
-                                            />
-                                        </div>
-                                    </label>
-
-                                    <p className="text-[11px] text-gray-400">
-                                        Using rate: 1 {getCurrencyCode(unslug(data.region), data.country)["Base Code"]} ≈ {convertRate} {userCurrency}
-                                    </p>
-                                </div>
-                            </section>
                         </div>
-                        <div className="mt-4">
-                            <StayOptions city={city || data.country}
-                                         options={stayOptions}
-                                         checkIn={checkIn}
-                                         checkOut={checkOut}
-                                         nights={nights}
-                            />
-                        </div>
+
                     </aside>
 
                 </section>

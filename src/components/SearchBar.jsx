@@ -1,4 +1,4 @@
-export default function WeatherSearchBar ({locationQuery, setLocationQuery,noLocationQueryResults,handleLocationSearch}) {
+export default function WeatherSearchBar ({locationQuery, setLocationQuery,noLocationQueryResults,handleLocationSearch,isDataFetching}) {
     return (
         <div className="px-4 pb-4 mt-5">
             <label className="text-xs font-medium text-slate-500 mb-1 block">Enter a Place Name</label>
@@ -11,7 +11,10 @@ export default function WeatherSearchBar ({locationQuery, setLocationQuery,noLoc
                     className="w-full rounded-lg border
                             border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
                 />
-                <button className="rounded-lg bg-slate-900 px-3 py-1 text-sm font-semibold text-white" onClick={handleLocationSearch}>Search</button>
+                <button className="rounded-lg bg-slate-900 px-3 py-1 text-sm font-semibold text-white"
+                        disabled={isDataFetching}
+                        title="Search for the weather in the entered location"
+                        onClick={handleLocationSearch}>{ isDataFetching ? "Loading": "Search"}</button>
             </div>
             {
                 noLocationQueryResults && (

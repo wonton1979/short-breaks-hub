@@ -24,6 +24,7 @@ import CommunityTripsPage from "./pages/CommunityTripsPage.jsx";
 import CommunityRegionPage from "./pages/CommunityRegionPage.jsx";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import GoogleMap from "./components/GoogleMap.jsx";
 
 function App() {
 
@@ -90,6 +91,7 @@ function App() {
                 <Route path="/live-weather" element={<WeatherPage />} />
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="*" element={<NotFound />} />
+                <Route path="/map" element={<GoogleMap />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/contact" element={<ContactPage />} />

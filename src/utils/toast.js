@@ -2,7 +2,9 @@ export function showToast(message, { variant = 'success', duration = 2200 } = {}
     const root = document.getElementById('toast-root');
     const wrap = document.createElement('div');
 
-    const base = "pointer-events-auto rounded border px-4 py-2 shadow-sm flex items-center gap-2";
+    const base =
+        'pointer-events-auto rounded-lg border px-6 py-3 shadow-md flex items-center gap-3 max-w-xl';
+
     const styles = variant === 'success'
         ? "bg-white border-emerald-200"
         : variant === 'error'
@@ -14,8 +16,8 @@ export function showToast(message, { variant = 'success', duration = 2200 } = {}
     wrap.setAttribute('aria-live', 'polite');
 
     wrap.innerHTML = `
-    <span class="text-lg ${variant==='error' ? 'text-red-700' : 'text-emerald-700'}">${message}</span>
-    <button class="ml-2 text-slate-500 hover:text-slate-700 text-xs">Dismiss</button>
+    <span class="text-xl font-medium ${variant === 'error' ? 'text-red-700' : 'text-emerald-700'}"> ${message} </span>
+    <button class="ml-auto text-sm text-slate-500 hover:text-slate-700"> Dismiss </button>
   `;
 
     const btn = wrap.querySelector('button');

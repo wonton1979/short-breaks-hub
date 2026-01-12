@@ -102,11 +102,13 @@ export default function Navbar() {
                     ))}
                     {Auth.isLoggedIn() && (
                         <button
+                            title="Profile"
                             onClick={() => navigate("/profile")}
                             className="flex items-center text-gray-700 hover:text-gray-900 mx-10 cursor-pointer"
                         >
-                            <FaUserCircle size={28} />
+                            <FaUserCircle size={36} />
                         </button>
+
                     )}
                 </ul>
 

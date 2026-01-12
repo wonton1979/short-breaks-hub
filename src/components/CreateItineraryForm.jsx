@@ -530,7 +530,7 @@ export default function CreateItineraryForm() {
                     </section>
                 </div>
 
-                {/* Footer actions */}
+                {/* WeatherFooter actions */}
                 <div className="flex items-center justify-end gap-2 mt-6">
                     <button type="button" className="px-4 py-2 rounded-md border border-slate-300 hover:bg-slate-50"
                             data-action="discard" onClick={()=> setShowConfirmationModal(true)}>Discard</button>
