@@ -1,9 +1,9 @@
-import React, {useId, useState} from "react";
+import React, {useEffect, useId, useState} from "react";
 import MapModal from "./MapModal";
 import GoogleMap from "./GoogleMap";
 import {loadSubFolderImages} from "../utils/loadImage.js";
 
-export default function FoodRecommendations({ data, defaultOpen = false }) {
+export default function FoodRecommendations({ mustTry,areas,places, defaultOpen = false }) {
     const [open, setOpen] = useState(defaultOpen);
     const contentId = useId();
     const [mapOpen, setMapOpen] = useState(false);
@@ -14,54 +14,9 @@ export default function FoodRecommendations({ data, defaultOpen = false }) {
         setMapOpen(true);
     };
 
-
-
-    // Hardcoded fallback data (so you can see the UI immediately)
-    const fallback = {
-        mustTry: ["Nasi Lemak", "Roti Canai", "Satay", "Laksa", "Char Kway Teow", "Teh Tarik"],
-        areas: [
-            {
-                name: "KLCC",
-                note: "Easy mall dining + Malaysian classics. Good for a quick lunch between sights.",
-            },
-            {
-                name: "Chinatown / Central Market",
-                note: "Old-school coffee shops, hawker-style bites, great for late afternoon + dinner.",
-            },
-            {
-                name: "Bukit Bintang",
-                note: "Street food + lively night scene. Ideal for a casual evening.",
-            },
-        ],
-        places: [
-            {
-                name: "Jalan Alor Food Street",
-                area: "Bukit Bintang",
-                reason: "Iconic street-food vibe with many stalls.",
-                imageUrl: "/src/assets/itineraries/malaysia/kuala-lumpur-food/jalan-alor-food-street.jpg",
-                lat: 3.1457,
-                lng: 101.7083
-            },
-            {
-                name: "Madam Kwan’s",
-                area: "KLCC",
-                reason: "Popular spot for Malaysian comfort classics.",
-                imageUrl: "/src/assets/itineraries/malaysia/kuala-lumpur-food/madam-kwans.jpg",
-                lat: 3.1575,
-                lng: 101.7116
-            },
-            {
-                name: "Traditional Kopitiam (Coffee Shop)",
-                area: "Chinatown",
-                reason: "Simple local breakfast + kopi/teh.",
-                imageUrl: "/src/assets/itineraries/malaysia/kuala-lumpur-food/traditional-kopitiam.jpg",
-                lat: 3.1413,
-                lng: 101.6977
-            },
-        ],
-    };
-
-    const d = data ?? fallback;
+    useEffect(() => {
+        console.log(places)
+    },[])
 
     return (
         <section className="rounded-xl border border-slate-200 bg-white">
@@ -104,13 +59,13 @@ export default function FoodRecommendations({ data, defaultOpen = false }) {
                 <div className="overflow-hidden border-t border-slate-200">
                     <div className="p-4">
                         {/* Must-try dishes */}
-                        {d.mustTry?.length ? (
+                        {mustTry?.length ? (
                             <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                                 <div className="text-xs font-semibold text-slate-800">Must-Try Dishes</div>
 
                                 {/* chips */}
                                 <div className="mt-2 flex flex-wrap gap-2">
-                                    {d.mustTry.map((item) => (
+                                    {mustTry.map((item) => (
                                         <span
                                             key={item}
                                             className="inline-flex items-center font-bold rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-700"
@@ -123,12 +78,12 @@ export default function FoodRecommendations({ data, defaultOpen = false }) {
                         ) : null}
 
                         {/* Best areas to eat */}
-                        {d.areas?.length ? (
+                        {areas?.length ? (
                             <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
                                 <div className="text-xs font-semibold text-slate-800">Best areas to eat</div>
 
                                 <ul className="mt-2 space-y-2 text-xs text-slate-600">
-                                    {d.areas.map((a) => (
+                                    {areas.map((a) => (
                                         <li key={a.name}>
                                             <span className="font-semibold text-slate-800">{a.name}:</span>{" "}
                                             {a.note}
@@ -139,14 +94,14 @@ export default function FoodRecommendations({ data, defaultOpen = false }) {
                         ) : null}
 
                         {/* Recommended places (with images, can be empty) */}
-                        {d.places?.length ? (
+                        {places?.length ? (
                             <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
                                 <div className="text-xs font-semibold text-slate-800">
                                     Recommended places
                                 </div>
 
                                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                                    {d.places.map((p) => (
+                                    {places.map((p) => (
                                         <div
                                             key={p.name}
                                             className="rounded-lg border border-slate-200 bg-white overflow-hidden"

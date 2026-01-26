@@ -301,7 +301,12 @@ export default function ItineraryPage() {
                         </div>
 
                         <div className="mt-3 pb-4 border-b border-slate-300">
-                            <FoodRecommendations defaultOpen={false} />
+                            <FoodRecommendations
+                                defaultOpen={false}
+                                mustTry={data.mustTry}
+                                areas={data.areas}
+                                places={data.places}
+                            />
                         </div>
 
 
