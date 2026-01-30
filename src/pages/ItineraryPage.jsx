@@ -17,6 +17,7 @@ import TravelTips from "../components/TravelTips.jsx";
 import FoodRecommendations from "../components/FoodRecommendations";
 import TransportTips from "../components/TransportTips.jsx"
 import CurrencyConvertor from "../components/CurrencyConvertor";
+import TripPrepRail from "../components/TripPrepRail";
 
 
 export default function ItineraryPage() {
@@ -32,6 +33,16 @@ export default function ItineraryPage() {
         liked: false,
         count: 0,
         saving: false,
+    });
+    const [showSmartSuggestions, setShowSmartSuggestions] = React.useState(true);
+    const [prepDone, setPrepDone] = React.useState({
+        hotel: false,
+        flights: false,
+        insurance: false,
+        airport: false,
+        localTransport: false,
+        car: false,
+        docs: false,
     });
 
     const [planning, setPlanning] = useState(null)
@@ -79,6 +90,31 @@ export default function ItineraryPage() {
         return s.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
     }
 
+    function markPrepDone(id) {
+        setPrepDone((prev) => ({ ...prev, [id]: true }));
+    }
+
+    function resetPrep() {
+        setPrepDone({
+            hotel: false,
+            flights: false,
+            insurance: false,
+            airport: false,
+            localTransport: false,
+            docs: false,
+        });
+    }
+
+    function markAllPrepDone() {
+        setPrepDone({
+            hotel: true,
+            flights: true,
+            insurance: true,
+            airport: true,
+            localTransport: true,
+            docs: true,
+        });
+    }
 
 
     const today = new Date();
@@ -117,7 +153,6 @@ export default function ItineraryPage() {
                     `${data.country} • ${data.days} days from $${data.priceFrom}`
                 );
                 setData(data);
-                console.log(data);
                 setPlanning({
                     city: data.planningCity,
                     bestTime: {
@@ -187,6 +222,73 @@ export default function ItineraryPage() {
     },[convertRate])
 
 
+    const city = data.city;
+    const stayOptions = city ? (staysByCity[city] || []) : [];
+
+    const tripPrepItems = React.useMemo(() => {
+        return [
+            {
+                id: "hotel",
+                title: "Hotel",
+                hint: "Confirm address, check-in policy, and cancellation.",
+                ctaLabel: "Find hotels",
+                done: prepDone.hotel,
+                onFind: () => console.log("affiliate: hotels", { city, checkIn, checkOut }),
+            },
+            {
+                id: "flights",
+                title: "Flights",
+                hint: "Check routes, baggage rules, and seat selection.",
+                ctaLabel: "Find flights",
+                done: prepDone.flights,
+                onFind: () => console.log("affiliate: flights", { city, checkIn, checkOut }),
+            },
+            {
+                id: "insurance",
+                title: "Travel insurance",
+                hint: "Especially important for non-refundable bookings.",
+                ctaLabel: "Compare insurance",
+                done: prepDone.insurance,
+                onFind: () => console.log("affiliate: insurance", { city, checkIn, checkOut }),
+            },
+            {
+                id: "airport",
+                title: "Airport parking / transfer",
+                hint: "Parking, shuttle, or pickup — plan ahead.",
+                ctaLabel: "Find parking/transfer",
+                done: prepDone.airport,
+                onFind: () => console.log("affiliate: airport", { city, checkIn }),
+            },
+
+            {
+                id: "car",
+                title: "Car rental",
+                hint: "Pick-up location, dates, and transmission type.",
+                ctaLabel: "Find car rentals",
+                done: prepDone.car,
+                onFind: () => console.log("affiliate: car rental", { city, checkIn, checkOut }),
+            },
+
+            {
+                id: "localTransport",
+                title: "Local transport plan",
+                hint: "Metro passes, taxis, ride-hailing, or walking routes.",
+                ctaLabel: "Plan transport",
+                done: prepDone.localTransport,
+                onFind: () => console.log("affiliate: local transport", { city }),
+            },
+            {
+                id: "docs",
+                title: "Documents ready",
+                hint: "Passport/ID, bookings, visas, and entry requirements.",
+                ctaLabel: "Check requirements",
+                done: prepDone.docs,
+                onFind: () => console.log("affiliate: docs", { country: data?.country }),
+            },
+        ];
+    }, [prepDone, city, checkIn, checkOut, data?.country]);
+
+
     if (loading) {
         return (
             <div className="fixed inset-0 z-50 bg-white">
@@ -208,10 +310,6 @@ export default function ItineraryPage() {
             </div>
         );
     }
-
-    const city = data.city;
-    const stayOptions = city ? (staysByCity[city] || []) : [];
-
 
 
     return (
@@ -328,49 +426,14 @@ export default function ItineraryPage() {
 
 
                     <aside>
-                        <div className="bg-white rounded-xl shadow p-5 sticky top-20">
-                            <h3 className="text-lg font-bold mb-3">Choose your dates</h3>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <label className="text-sm text-gray-600">
-                                    Check‑in
-                                    <input
-                                        type="date"
-                                        value={checkIn}
-                                        onChange={(e) => setCheckIn(e.target.value)}
-                                        className="mt-1 w-full border rounded px-2 py-1"
-                                    />
-                                </label>
-
-                                <label className="text-sm text-gray-600">
-                                    Check‑out
-                                    <input
-                                        type="date"
-                                        value={checkOut}
-                                        min={checkIn}
-                                        onChange={(e) => setCheckOut(e.target.value)}
-                                        className="mt-1 w-full border rounded px-2 py-1"
-                                    />
-                                </label>
-                            </div>
-
-                            <p className="text-xs text-gray-500 mt-2">
-                                {nights > 0 ? `${nights} night${nights > 1 ? "s" : ""}` : "Select valid dates"}
-                            </p>
-
-                            <hr className="my-4" />
-
-                            <div className="mt-4">
-                                <StayOptions city={city || data.country}
-                                             options={stayOptions}
-                                             checkIn={checkIn}
-                                             checkOut={checkOut}
-                                             nights={nights}
-                                />
-                            </div>
-
-                        </div>
-
+                        <TripPrepRail
+                            items={tripPrepItems}
+                            onMarkDone={markPrepDone}
+                            onReset={resetPrep}
+                            onMarkAllDone={markAllPrepDone}
+                            showSmartSuggestions={showSmartSuggestions}
+                            onToggleSmartSuggestions={setShowSmartSuggestions}
+                        />
                     </aside>
 
                 </section>
