@@ -18,23 +18,21 @@ Browse curated itineraries, explore highlights by region, and find recommended s
 - 🎨 **Modern UI** – Built with **TailwindCSS** for a clean and engaging design.  
 
 ---
+## 🛠 Tech Stack
 
-## 🛠️ Tech Stack  
+- Frontend: React (Vite) + React Router
+- Styling: Tailwind CSS
+- State Management: React Hooks
+- Backend API: Java Spring Boot REST API (separate repository)
+- Database: PostgreSQL
+- Deployment: AWS / S3 frontend hosting
 
-- **Frontend:** React (Vite) + React Router  
-- **Styling:** TailwindCSS  
-- **State Management:** React Hooks  
-- **Backend (Planned):** Node.js / Spring Boot + Database (Supabase or PostgreSQL)  
-- **Deployment:** Netlify (Frontend), Render (Backend)  
+## ⚙️ Installation
 
----
-
-## ⚙️ Installation  
-
-Clone the repository and install dependencies:  
+Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/your-username/short-breaks-hub.git
+git clone https://github.com/wonton1979/short-breaks-hub.git
 cd short-breaks-hub
 npm install
 npm run dev
